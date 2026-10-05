@@ -14,7 +14,10 @@ llm:
 # Tool providers. Free default first; paid swaps listed beside each.
 tools:
   web_search:
-    provider: ${SEARCH_PROVIDER:-ddgs}     # ddgs (free, no key) | tavily (TAVILY_API_KEY) | brave (BRAVE_API_KEY)
+    # One provider, or several comma-separated (searched in parallel, results merged):
+    #   ddgs (free Bing/Yahoo, no key) | serper (Google, SERPER_API_KEY; 2,500 free searches)
+    #   tavily (TAVILY_API_KEY) | brave (BRAVE_API_KEY).   e.g. SEARCH_PROVIDER=ddgs,serper
+    provider: ${SEARCH_PROVIDER:-ddgs}
     max_results: 6
     # ddgs only: which engines it scrapes. Measured 2026-10-05 from this network: for web
     # searches DuckDuckGo, Brave, Google and Mojeek refused every query, Bing and Yahoo answered

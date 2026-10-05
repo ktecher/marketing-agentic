@@ -114,6 +114,25 @@ def _brave(query: str, kind: str, recency: Recency, n: int, **_) -> list[dict]:
     ]
 
 
+def _serper(query: str, kind: str, recency: Recency, n: int, **_) -> list[dict]:
+    """Google results via Serper (serper.dev): 2,500 free searches, then prepaid credits."""
+    body = {"q": query, "num": n}
+    if recency != "any":
+        body["tbs"] = f"qdr:{recency[0]}"  # d / w / m / y
+    r = httpx.post(
+        f"https://google.serper.dev/{'news' if kind == 'news' else 'search'}",
+        json=body,
+        headers={"X-API-KEY": _key("SERPER_API_KEY"), "Content-Type": "application/json"},
+        timeout=30,
+    )
+    r.raise_for_status()
+    items = r.json().get("news" if kind == "news" else "organic", [])
+    return [
+        {"title": x["title"], "url": x["link"], "snippet": x.get("snippet"), "date": x.get("date"), "source": x.get("source")}
+        for x in items
+    ]
+
+
 def _key(name: str) -> str:
     value = os.environ.get(name)
     if not value:
@@ -121,7 +140,25 @@ def _key(name: str) -> str:
     return value
 
 
-PROVIDERS = {"ddgs": _ddgs, "tavily": _tavily, "brave": _brave}
+PROVIDERS = {"ddgs": _ddgs, "serper": _serper, "tavily": _tavily, "brave": _brave}
+LABELS = {"ddgs": "Bing/Yahoo (free)", "serper": "Google", "tavily": "Tavily", "brave": "Brave"}
+
+
+def _search_one(provider: str, query: str, kind: str, recency: Recency, n: int, options: dict) -> tuple[list[dict], str]:
+    """Results from one provider, plus a note for the agent ('' when nothing to say)."""
+    if provider != "ddgs":
+        return PROVIDERS[provider](query, kind, recency, n), ""
+    engines = {"web": options.get("web_engines", "auto"), "news": options.get("news_engines", "auto")}
+    try:
+        return PROVIDERS["ddgs"](query, kind, recency, n, backends=engines), ""
+    except RuntimeError:
+        if recency == "any":
+            raise
+        # Date filters make the scraped engines refuse far more often (measured). Fall back to an
+        # unfiltered search and say so, so the agent checks dates itself instead of assuming them.
+        results = PROVIDERS["ddgs"](query, kind, "any", n, backends=engines)
+        return results, (f"[No results with the '{recency}' filter; these are from ANY date. Check each "
+                         f"date before treating it as recent.]")
 
 
 @register_tool(
@@ -131,20 +168,36 @@ PROVIDERS = {"ddgs": _ddgs, "tavily": _tavily, "brave": _brave}
     SearchArgs,
 )
 def web_search(query: str, kind: str = "web", recency: Recency = "any", *, options: dict) -> str:
-    provider = options.get("provider", "ddgs")
-    if provider not in PROVIDERS:
-        raise ValueError(f"unknown web_search provider '{provider}'; choose from {sorted(PROVIDERS)}")
+    # `provider` may list several ("ddgs,serper"): they are searched in parallel and merged.
+    providers = [p.strip() for p in str(options.get("provider", "ddgs")).split(",") if p.strip()]
+    unknown = [p for p in providers if p not in PROVIDERS]
+    if unknown or not providers:
+        raise ValueError(f"unknown web_search provider {unknown or providers}; choose from {sorted(PROVIDERS)}")
     n = int(options.get("max_results", 6))
-    if provider != "ddgs":
-        return _format(PROVIDERS[provider](query, kind, recency, n))
-    engines = {"web": options.get("web_engines", "auto"), "news": options.get("news_engines", "auto")}
-    try:
-        return _format(PROVIDERS["ddgs"](query, kind, recency, n, backends=engines))
-    except RuntimeError:
-        if recency == "any":
-            raise
-        # Date filters make the scraped engines refuse far more often (measured). Fall back to an
-        # unfiltered search and say so, so the agent checks dates itself instead of assuming them.
-        results = PROVIDERS["ddgs"](query, kind, "any", n, backends=engines)
-        return (f"[No results with the '{recency}' filter; these are from ANY date. Check each date "
-                f"before treating it as recent.]\n" + _format(results))
+    if len(providers) == 1:
+        results, note = _search_one(providers[0], query, kind, recency, n, options)
+        return "\n".join(filter(None, [note, _format(results)]))
+
+    from concurrent.futures import ThreadPoolExecutor
+
+    def attempt(p):
+        try:
+            return p, *_search_one(p, query, kind, recency, n, options), None
+        except Exception as e:
+            return p, [], "", e
+
+    with ThreadPoolExecutor(len(providers)) as pool:
+        outcomes = list(pool.map(attempt, providers))
+    if all(err for *_, err in outcomes):
+        raise RuntimeError("; ".join(f"{LABELS[p]}: {type(e).__name__}: {e}" for p, _, _, e in outcomes))
+
+    # Interleave the sources (best result of each first), dropping URLs already listed.
+    merged, seen = [], set()
+    for rank in range(n):
+        for p, results, _, _ in outcomes:
+            if rank < len(results) and (url := results[rank]["url"].rstrip("/")) not in seen:
+                seen.add(url)
+                merged.append({**results[rank], "source": results[rank].get("source") or LABELS[p]})
+    notes = [note for _, _, note, _ in outcomes if note]
+    notes += [f"[{LABELS[p]} search failed: {type(e).__name__}: {e}]" for p, _, _, e in outcomes if e]
+    return "\n".join([*notes, _format(merged)])

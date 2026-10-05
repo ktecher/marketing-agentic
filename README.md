@@ -140,7 +140,7 @@ Each specialist uses tools listed in `config/agents.yaml`. The defaults need no 
 
 | Tool | What it does | Providers |
 |---|---|---|
-| `web_search` | Web and news search | `ddgs` (default, free), `tavily` (`TAVILY_API_KEY`), `brave` (`BRAVE_API_KEY`) |
+| `web_search` | Web and news search | `ddgs` (default, free: Bing + Yahoo), `serper` (Google, `SERPER_API_KEY`, 2,500 free searches), `tavily` (`TAVILY_API_KEY`), `brave` (`BRAVE_API_KEY`). Combine several: `SEARCH_PROVIDER=ddgs,serper` searches them in parallel and merges the results. |
 | `read_page` | Returns a page's main text | `scrapling` (default, free, local; stealth browser for blocked or JavaScript pages), `trafilatura` (free, plain HTTP), `jina` (free tier), `firecrawl` (`FIRECRAWL_API_KEY`) |
 | `current_date` | Today's date (UTC), to judge how recent a source is | none |
 
@@ -173,6 +173,11 @@ Trade-offs:
   are queued two at a time and retried, and a search with a date filter that still returns
   nothing is re-run without the filter, with a note telling the agent to check dates. For
   dependable volume, use `tavily`.
+- Google blocks free scraping (it refused every test query), and Google's own Custom Search API
+  takes no new customers and shuts down on 1 January 2027. For Google results, get a free key at
+  serper.dev and set `SEARCH_PROVIDER=ddgs,serper`: each search then covers Bing, Yahoo and
+  Google, merged with duplicates removed. If Google fails, the Bing/Yahoo results still come
+  through with a note.
 - `scrapling` first fetches with a real-browser fingerprint (about 1s). Only if the page is
   blocked or renders client-side (e.g. TikTok profiles) does it open its stealth browser (about
   10s). The browser needs a one-time `uv run scrapling install`; set `READER_BROWSER=false` to

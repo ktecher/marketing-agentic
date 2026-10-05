@@ -221,3 +221,50 @@ def test_date_filter_falls_back_to_unfiltered_with_a_warning(monkeypatch):
 def test_merged_titles_are_cut_short():
     out = web_search._format([{"title": "A" * 300, "url": "https://u.example"}])
     assert out.splitlines()[0] == "1. " + "A" * 117 + "..."
+
+
+def test_serper_request_and_parsing(monkeypatch):
+    sent = {}
+
+    class Resp:
+        def raise_for_status(self): pass
+        def json(self):
+            return {"news": [{"title": "Fold 8 sales", "link": "https://n.example/a", "snippet": "s", "date": "2 days ago", "source": "Verge"}]}
+
+    def fake_post(url, json, headers, timeout):
+        sent.update(url=url, body=json, key=headers["X-API-KEY"])
+        return Resp()
+
+    monkeypatch.setenv("SERPER_API_KEY", "sk-test")
+    monkeypatch.setattr(web_search.httpx, "post", fake_post)
+    out = web_search._serper("Galaxy Z Fold 8", "news", "week", 5)
+    assert sent == {"url": "https://google.serper.dev/news", "body": {"q": "Galaxy Z Fold 8", "num": 5, "tbs": "qdr:w"}, "key": "sk-test"}
+    assert out == [{"title": "Fold 8 sales", "url": "https://n.example/a", "snippet": "s", "date": "2 days ago", "source": "Verge"}]
+
+
+def _multi_tool(monkeypatch, ddgs, serper):
+    monkeypatch.setitem(web_search.PROVIDERS, "ddgs", ddgs)
+    monkeypatch.setitem(web_search.PROVIDERS, "serper", serper)
+    [tool] = build_tools(["web_search"], _settings(tools={"web_search": {"provider": "ddgs, serper", "max_results": 3}}))
+    return tool
+
+
+def test_several_providers_are_merged_interleaved_and_deduped(monkeypatch):
+    r = lambda *urls: [{"title": u, "url": f"https://{u}.example"} for u in urls]
+    tool = _multi_tool(monkeypatch, lambda *a, **k: r("b1", "shared", "b3"), lambda *a, **k: r("g1", "shared", "g3"))
+    lines = [l for l in tool.invoke({"query": "x"}).splitlines() if l[:1].isdigit()]
+    assert [l.split(". ", 1)[1] for l in lines] == ["b1", "g1", "shared", "b3", "g3"]
+
+
+def test_one_provider_failing_is_reported_not_fatal(monkeypatch):
+    monkeypatch.delenv("SERPER_API_KEY", raising=False)
+    tool = _multi_tool(monkeypatch, lambda *a, **k: [{"title": "B", "url": "https://b.example"}], web_search._serper)
+    out = tool.invoke({"query": "x"})
+    assert out.startswith("[Google search failed: RuntimeError: SERPER_API_KEY is not set") and "1. B" in out
+
+
+def test_all_providers_failing_is_a_tool_error(monkeypatch):
+    def down(*a, **k):
+        raise ConnectionError("down")
+    tool = _multi_tool(monkeypatch, down, down)
+    assert tool.invoke({"query": "x"}).startswith("TOOL_ERROR (web_search): RuntimeError: Bing/Yahoo (free): ConnectionError")
