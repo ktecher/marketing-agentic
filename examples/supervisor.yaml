@@ -1,0 +1,16 @@
+# End-to-end requests for the supervisor. mock: true = fictional brand world (data/mock/).
+- request: "Research our competitor Kiraleaf, then draft 3 Instagram posts positioning Aurelle Skin against them."
+  mock: true
+  note: Two specialists in sequence; the research result feeds the drafts.
+- request: "What are people saying about Aurelle Skin this month, and how does Nuvéa Labs compare?"
+  mock: true
+  note: trend_monitoring + competitor_research, then synthesis.
+- request: "Give me 2 LinkedIn posts about skinimalism for Aurelle Skin."
+  mock: true
+  note: Single specialist; the answer is passed through verbatim.
+- request: "Hi, what can you do?"
+  mock: true
+  note: No specialist; the supervisor replies directly.
+- request: "Research Mailchimp's positioning and summarise what marketers are saying about it lately."
+  mock: false
+  note: Live web (DuckDuckGo). Real companies only in live mode.
