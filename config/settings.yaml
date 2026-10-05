@@ -1,6 +1,7 @@
 # Global settings. ${VAR:-default} reads an environment variable (from .env), else the default.
 
-# true = tools return cached sample data from data/mock/ (no network). The LLM still runs.
+# true = web_search / read_page answer from data/mock/ (fictional brand world, no network).
+# The LLM still runs. Toggle per run with MOCK_MODE=true or the UI switch.
 mock_mode: ${MOCK_MODE:-false}
 
 # Default LLM for every agent. Override per agent in agents.yaml.
@@ -10,6 +11,12 @@ llm:
   base_url: ${LLM_BASE_URL:-}              # openai_compatible / ollama only
   # temperature: 0.3                       # ignored by claude_code
 
-# Tool providers. Free default first; paid swap in the comment.
+# Tool providers. Free default first; paid swaps listed beside each.
 tools:
+  web_search:
+    provider: ${SEARCH_PROVIDER:-ddgs}     # ddgs (free, no key) | tavily (TAVILY_API_KEY) | brave (BRAVE_API_KEY)
+    max_results: 6
+  read_page:
+    provider: ${READER_PROVIDER:-trafilatura}  # trafilatura (free, local) | jina (free tier, JS pages) | firecrawl (FIRECRAWL_API_KEY)
+    max_chars: 8000
   current_date: {}

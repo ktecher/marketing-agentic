@@ -22,6 +22,7 @@ from langchain_core.tools import StructuredTool
 from pydantic import BaseModel
 
 from core.config import Settings
+from tools.mock import mock_result
 
 
 @dataclass(frozen=True)
@@ -49,7 +50,7 @@ def _discover() -> None:
     import tools
 
     for mod in pkgutil.iter_modules(tools.__path__):
-        if mod.name != "registry":
+        if mod.name not in ("registry", "mock"):
             importlib.import_module(f"tools.{mod.name}")
 
 
@@ -63,6 +64,8 @@ def _wrap(tool: ToolDef, settings: Settings) -> Callable[..., str]:
 
     def run(**kwargs) -> str:
         try:
+            if settings.mock_mode and (cached := mock_result(tool.name, kwargs)) is not None:
+                return cached
             return tool.func(**kwargs, options=options)
         except Exception as e:  # reported to the agent, which decides how to continue
             return f"TOOL_ERROR ({tool.name}): {type(e).__name__}: {e}"

@@ -1,0 +1,1813 @@
+[
+ {
+  "match": [
+   "skin",
+   "barrier",
+   "repair",
+   "ceramide",
+   "ceramides",
+   "damaged",
+   "compromised",
+   "sensitive",
+   "fragrance",
+   "free"
+  ],
+  "kind": "any",
+  "results": [
+   {
+    "title": "Your skin barrier, explained",
+    "url": "https://dermdaily.example/skin-barrier-explained",
+    "snippet": "Dermatologist Dr. Selin Aras on what the barrier is, signs of damage, and what helps: simplify, replace lipids, soothe and avoid fragrance. Searches up ~70% year on year.",
+    "date": "2026-06-22",
+    "source": "DermDaily"
+   },
+   {
+    "title": "The best barrier repair serums of 2026, tested",
+    "url": "https://dermdaily.example/best-barrier-serums-2026",
+    "snippet": "Aurelle Barrier Reset Serum ranks #1 (9.1) for gentleness, ahead of Nuvéa Barrier Lipid Complex (8.6, pricier) and Kiraleaf Centella Essence (7.4, contains fragrance). Pump issue noted.",
+    "date": "2026-09-15",
+    "source": "DermDaily"
+   },
+   {
+    "title": "GlossBrief — The week in beauty (issue #212)",
+    "url": "https://glossbrief.example/issues/2026-09-29",
+    "snippet": "Barrier mentions up 64%; Kiraleaf's negative mentions doubled over shipping; Nuvéa's Dubai pop-up draws crowds while dropping 'planet-positive'; skinimalism drives loyalty.",
+    "date": "2026-09-29",
+    "source": "GlossBrief"
+   },
+   {
+    "title": "Barrier Reset Serum — $42 (30 ml)",
+    "url": "https://aurelle.example/products/barrier-reset-serum",
+    "snippet": "Ceramide complex in a 3:1:1 ratio, 5% panthenol, squalane and 2% niacinamide. Fragrance-free, 4.7/5 from 3,180 reviews. 81% saw less redness in 4 weeks (n=48). New pump from the November batch.",
+    "date": "2026-09-27",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   }
+  ]
+ },
+ {
+  "match": [
+   "skinimalism",
+   "minimal",
+   "minimalist",
+   "minimalism",
+   "fewer",
+   "steps",
+   "simple",
+   "routine",
+   "routines",
+   "step"
+  ],
+  "kind": "any",
+  "results": [
+   {
+    "title": "Skinimalism: why dermatologists love the four-step routine",
+    "url": "https://dermdaily.example/skinimalism-guide",
+    "snippet": "Searches for 'simple skincare routine' are up 48%. Aurelle caps routines at four products; quiz-led Nuvéa often recommends five or six.",
+    "date": "2026-07-30",
+    "source": "DermDaily"
+   },
+   {
+    "title": "GlossBrief — The week in beauty (issue #212)",
+    "url": "https://glossbrief.example/issues/2026-09-29",
+    "snippet": "Barrier mentions up 64%; Kiraleaf's negative mentions doubled over shipping; Nuvéa's Dubai pop-up draws crowds while dropping 'planet-positive'; skinimalism drives loyalty.",
+    "date": "2026-09-29",
+    "source": "GlossBrief"
+   },
+   {
+    "title": "Aurelle Barrier Reset Serum — 6 week review (sensitive / rosacea skin)",
+    "url": "https://skintalk.example/t/aurelle-barrier-reset-review",
+    "snippet": "98 replies: redness down, no stinging, no pilling under SPF, 9/10. Several users report the pump dying with ~10% left; Aurelle sent free refills and confirmed a new pump.",
+    "date": "2026-09-27",
+    "source": "SkinTalk"
+   },
+   {
+    "title": "Do AI skin quizzes actually sell skincare?",
+    "url": "https://beautywire.example/insights/ai-skin-quizzes",
+    "snippet": "Quiz-takers convert 3x better, but 31% of users say quizzes 'pushed too many products' and 24% worry about their photo. Aurelle's no-photo, four-product guide is the counter-model.",
+    "date": "2026-09-09",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "About Aurelle Skin",
+    "url": "https://aurelle.example/about",
+    "snippet": "Founded in Dubai in 2021 by consultant dermatologist Dr. Leila Haddad. Barrier first, fewer steps, clear claims, made for heat. 180,000+ customers; 62% of orders ship within the GCC.",
+    "date": "2026-07-01",
+    "source": "Aurelle Skin"
+   }
+  ]
+ },
+ {
+  "match": [
+   "spf",
+   "sunscreen",
+   "sun",
+   "serums",
+   "daily",
+   "uv",
+   "protection",
+   "suncare",
+   "care"
+  ],
+  "kind": "any",
+  "results": [
+   {
+    "title": "SPF serums reviewed: do they protect as well as they feel?",
+    "url": "https://dermdaily.example/spf-serums-reviewed",
+    "snippet": "Tested in Riyadh and Abu Dhabi: Kiraleaf Sun Veil is best for glow but shiny by noon; Aurelle Daily Veil is best for heat and sensitive skin; Nuvéa Daylight Shield is luxe but $72.",
+    "date": "2026-09-03",
+    "source": "DermDaily"
+   },
+   {
+    "title": "Kiraleaf bets big on SPF with Sun Veil serum launch",
+    "url": "https://beautywire.example/news/kiraleaf-sun-veil-launch",
+    "snippet": "TikTok-native Kiraleaf enters sun care with $32–34 SPF serums and 300 launch-day creators. Analysts warn its fulfilment problems and fragrance could blunt the launch.",
+    "date": "2026-08-14",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "Kiraleaf launches Sun Veil, a botanical SPF serum line",
+    "url": "https://kiraleaf.example/press/spf-launch",
+    "snippet": "Press release: Sun Veil SPF 50 Serum ($32) and Tinted SPF 45 ($34) launch with 300 creators. Kiraleaf expects SPF to make up 25% of revenue in 2027.",
+    "date": "2026-08-12",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "The GCC summer routine: barrier care at 45°C",
+    "url": "https://aurelle.example/journal/gcc-summer-routine",
+    "snippet": "Aurelle Journal: a four-step routine for heat, humidity and air-conditioning. 58% of surveyed GCC customers skip SPF on days they stay inside.",
+    "date": "2026-07-08",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   }
+  ]
+ },
+ {
+  "match": [
+   "refillable",
+   "refill",
+   "refills",
+   "packaging",
+   "sustainable",
+   "sustainability",
+   "eco",
+   "plastic",
+   "greenwashing",
+   "recyclable",
+   "recycling"
+  ],
+  "kind": "any",
+  "results": [
+   {
+    "title": "Refillable packaging in 2026: who is doing it, and who is just saying it",
+    "url": "https://glossbrief.example/refillable-packaging",
+    "snippet": "Only 11 of 60 premium brands offer refills. Aurelle's $36 pouch with '68% less plastic' wins trust; Nuvéa's glass with no refills draws greenwashing criticism; Kiraleaf plans refills for 2027.",
+    "date": "2026-08-18",
+    "source": "GlossBrief"
+   },
+   {
+    "title": "Aurelle launches refill pouches for Barrier Reset Serum",
+    "url": "https://aurelle.example/press/refill-pouches",
+    "snippet": "Refill pouch at $36 uses 68% less plastic, with an independent LCA. Aurelle avoids 'eco' claims and admits its pump is not widely recyclable in the GCC.",
+    "date": "2026-06-16",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "Sustainability at Nuvéa Labs",
+    "url": "https://nuvealabs.example/sustainability",
+    "snippet": "'Infinitely recyclable glass' and offset shipping, but droppers and pumps are not recyclable and there are no refills. 'Planet-positive packaging' was removed on 2026-09-02 after feedback.",
+    "date": "2026-09-02",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Is Nuvéa Labs actually worth $120? Honest opinions",
+    "url": "https://skintalk.example/t/nuvea-worth-the-price",
+    "snippet": "167 replies: good formulas but an overpriced hero; '92% from 34 people is not clinically proven'; packaging called greenwashing; Dubai pop-up praised as fun.",
+    "date": "2026-09-30",
+    "source": "SkinTalk"
+   },
+   {
+    "title": "GlossBrief — The week in beauty (issue #212)",
+    "url": "https://glossbrief.example/issues/2026-09-29",
+    "snippet": "Barrier mentions up 64%; Kiraleaf's negative mentions doubled over shipping; Nuvéa's Dubai pop-up draws crowds while dropping 'planet-positive'; skinimalism drives loyalty.",
+    "date": "2026-09-29",
+    "source": "GlossBrief"
+   }
+  ]
+ },
+ {
+  "match": [
+   "ai",
+   "quiz",
+   "quizzes",
+   "analysis",
+   "personalised",
+   "personalized",
+   "personalization",
+   "selfie",
+   "diagnostic",
+   "skinscan",
+   "tool"
+  ],
+  "kind": "any",
+  "results": [
+   {
+    "title": "Do AI skin quizzes actually sell skincare?",
+    "url": "https://beautywire.example/insights/ai-skin-quizzes",
+    "snippet": "Quiz-takers convert 3x better, but 31% of users say quizzes 'pushed too many products' and 24% worry about their photo. Aurelle's no-photo, four-product guide is the counter-model.",
+    "date": "2026-09-09",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "SkinScan™ — your AI skin analysis",
+    "url": "https://nuvealabs.example/skin-quiz",
+    "snippet": "Free 3-minute AI quiz: a selfie plus 12 questions scores seven skin markers. Selfies stored up to 12 months by default. SkinScan 2.0 will add a GCC heat mode.",
+    "date": "2026-09-05",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Nuvéa Labs' Dubai pop-up: early read on the GCC's newest premium entrant",
+    "url": "https://retailpulse.example/news/nuvea-dubai-popup",
+    "snippet": "3,000+ scans in week one, 38% scan-to-purchase conversion, average basket ~AED 620. 54% of aware GCC consumers call Nuvéa 'too expensive for daily use'.",
+    "date": "2026-09-30",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Skinimalism: why dermatologists love the four-step routine",
+    "url": "https://dermdaily.example/skinimalism-guide",
+    "snippet": "Searches for 'simple skincare routine' are up 48%. Aurelle caps routines at four products; quiz-led Nuvéa often recommends five or six.",
+    "date": "2026-07-30",
+    "source": "DermDaily"
+   }
+  ]
+ },
+ {
+  "match": [
+   "gcc",
+   "gulf",
+   "middle",
+   "east",
+   "uae",
+   "dubai",
+   "saudi",
+   "ksa",
+   "riyadh",
+   "kuwait",
+   "qatar",
+   "heat",
+   "hot",
+   "humidity",
+   "humid",
+   "climate",
+   "summer"
+  ],
+  "kind": "any",
+  "results": [
+   {
+    "title": "The GCC's skincare boom: heat, humidity and a hunger for expertise",
+    "url": "https://beautywire.example/news/gcc-skincare-market-2026",
+    "snippet": "GCC skincare grows ~9% a year. 67% of shoppers say 'suitable for hot climates' influences purchases; 58% prefer fragrance-free; 44% say delivery speed matters.",
+    "date": "2026-08-27",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "Skincare for 45°C and 80% humidity — what actually works? (GCC thread)",
+    "url": "https://skintalk.example/t/gcc-humidity-routines",
+    "snippet": "312 replies, pinned: keep it to four steps, use light textures, choose fragrance-free if sensitive, reapply SPF. Aurelle, Kiraleaf and Nuvéa's Climate Lab all mentioned.",
+    "date": "2026-09-25",
+    "source": "SkinTalk"
+   },
+   {
+    "title": "The GCC summer routine: barrier care at 45°C",
+    "url": "https://aurelle.example/journal/gcc-summer-routine",
+    "snippet": "Aurelle Journal: a four-step routine for heat, humidity and air-conditioning. 58% of surveyed GCC customers skip SPF on days they stay inside.",
+    "date": "2026-07-08",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "Nuvéa Labs' Dubai pop-up: early read on the GCC's newest premium entrant",
+    "url": "https://retailpulse.example/news/nuvea-dubai-popup",
+    "snippet": "3,000+ scans in week one, 38% scan-to-purchase conversion, average basket ~AED 620. 54% of aware GCC consumers call Nuvéa 'too expensive for daily use'.",
+    "date": "2026-09-30",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "SPF serums reviewed: do they protect as well as they feel?",
+    "url": "https://dermdaily.example/spf-serums-reviewed",
+    "snippet": "Tested in Riyadh and Abu Dhabi: Kiraleaf Sun Veil is best for glow but shiny by noon; Aurelle Daily Veil is best for heat and sensitive skin; Nuvéa Daylight Shield is luxe but $72.",
+    "date": "2026-09-03",
+    "source": "DermDaily"
+   }
+  ]
+ },
+ {
+  "match": [
+   "trends",
+   "trend",
+   "trending",
+   "industry",
+   "market",
+   "sentiment",
+   "report",
+   "tracker",
+   "share",
+   "voice",
+   "landscape",
+   "competitive"
+  ],
+  "kind": "any",
+  "results": [
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "GlossBrief — The week in beauty (issue #212)",
+    "url": "https://glossbrief.example/issues/2026-09-29",
+    "snippet": "Barrier mentions up 64%; Kiraleaf's negative mentions doubled over shipping; Nuvéa's Dubai pop-up draws crowds while dropping 'planet-positive'; skinimalism drives loyalty.",
+    "date": "2026-09-29",
+    "source": "GlossBrief"
+   },
+   {
+    "title": "The GCC's skincare boom: heat, humidity and a hunger for expertise",
+    "url": "https://beautywire.example/news/gcc-skincare-market-2026",
+    "snippet": "GCC skincare grows ~9% a year. 67% of shoppers say 'suitable for hot climates' influences purchases; 58% prefer fragrance-free; 44% say delivery speed matters.",
+    "date": "2026-08-27",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "Do AI skin quizzes actually sell skincare?",
+    "url": "https://beautywire.example/insights/ai-skin-quizzes",
+    "snippet": "Quiz-takers convert 3x better, but 31% of users say quizzes 'pushed too many products' and 24% worry about their photo. Aurelle's no-photo, four-product guide is the counter-model.",
+    "date": "2026-09-09",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "Refillable packaging in 2026: who is doing it, and who is just saying it",
+    "url": "https://glossbrief.example/refillable-packaging",
+    "snippet": "Only 11 of 60 premium brands offer refills. Aurelle's $36 pouch with '68% less plastic' wins trust; Nuvéa's glass with no refills draws greenwashing criticism; Kiraleaf plans refills for 2027.",
+    "date": "2026-08-18",
+    "source": "GlossBrief"
+   }
+  ]
+ },
+ {
+  "match": [
+   "kiraleaf",
+   "kira",
+   "leaf",
+   "overview",
+   "about",
+   "company",
+   "founded",
+   "founder",
+   "story",
+   "who",
+   "mira",
+   "kowal"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "Our story — Kiraleaf",
+    "url": "https://kiraleaf.example/about",
+    "snippet": "Founded in 2019 by Mira Kowal, Kiraleaf makes botanical skincare priced $18–$34. Team of 85, sells in 30 countries, 2.4M TikTok followers and 900K on Instagram.",
+    "date": "2026-08-01",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Kiraleaf — Botanical skincare for your everyday glow",
+    "url": "https://kiraleaf.example",
+    "snippet": "Plant-powered skincare with green tea, rice, centella and bakuchiol. New Sun Veil SPF 50 Serum. Join Kira Club and save 15% on every order.",
+    "date": "2026-09-28",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Kiraleaf launches Sun Veil, a botanical SPF serum line",
+    "url": "https://kiraleaf.example/press/spf-launch",
+    "snippet": "Press release: Sun Veil SPF 50 Serum ($32) and Tinted SPF 45 ($34) launch with 300 creators. Kiraleaf expects SPF to make up 25% of revenue in 2027.",
+    "date": "2026-08-12",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Kiraleaf bets big on SPF with Sun Veil serum launch",
+    "url": "https://beautywire.example/news/kiraleaf-sun-veil-launch",
+    "snippet": "TikTok-native Kiraleaf enters sun care with $32–34 SPF serums and 300 launch-day creators. Analysts warn its fulfilment problems and fragrance could blunt the launch.",
+    "date": "2026-08-14",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   }
+  ]
+ },
+ {
+  "match": [
+   "kiraleaf",
+   "kira",
+   "leaf",
+   "products",
+   "product",
+   "range",
+   "lineup",
+   "catalog",
+   "catalogue",
+   "shop",
+   "gel",
+   "cream",
+   "dew",
+   "spf",
+   "serum",
+   "sun",
+   "veil",
+   "bestsellers"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "Shop all — Kiraleaf",
+    "url": "https://kiraleaf.example/shop",
+    "snippet": "Full product list: Rice Milk Cleanser $20, Green Tea Toner $18, Centella Calm Essence $24, Dew Leaf Gel Cream $28, Bakuchiol Night Oil $34, Sun Veil SPF $32–34. Most products contain botanical fragrance.",
+    "date": "2026-09-20",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Sun Veil SPF 50 Serum — $32",
+    "url": "https://kiraleaf.example/products/sun-veil-spf-serum",
+    "snippet": "New in August 2026: a glowy SPF 50 PA++++ serum with green tea and rice ferment. Rated 4.3/5; reviews mention pilling, fragrance and long delivery times.",
+    "date": "2026-08-12",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Dew Leaf Gel Cream — $28",
+    "url": "https://kiraleaf.example/products/dew-leaf-gel-cream",
+    "snippet": "Kiraleaf's original bestseller: over 2 million jars sold, 4.6/5 from 8,450 reviews. Light gel for humid climates; contains natural fragrance.",
+    "date": "2026-07-10",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Kiraleaf launches Sun Veil, a botanical SPF serum line",
+    "url": "https://kiraleaf.example/press/spf-launch",
+    "snippet": "Press release: Sun Veil SPF 50 Serum ($32) and Tinted SPF 45 ($34) launch with 300 creators. Kiraleaf expects SPF to make up 25% of revenue in 2027.",
+    "date": "2026-08-12",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "SPF serums reviewed: do they protect as well as they feel?",
+    "url": "https://dermdaily.example/spf-serums-reviewed",
+    "snippet": "Tested in Riyadh and Abu Dhabi: Kiraleaf Sun Veil is best for glow but shiny by noon; Aurelle Daily Veil is best for heat and sensitive skin; Nuvéa Daylight Shield is luxe but $72.",
+    "date": "2026-09-03",
+    "source": "DermDaily"
+   }
+  ]
+ },
+ {
+  "match": [
+   "kiraleaf",
+   "kira",
+   "leaf",
+   "pricing",
+   "price",
+   "prices",
+   "cost",
+   "subscription",
+   "club",
+   "membership",
+   "discount",
+   "plans",
+   "subscribe"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "Pricing & Kira Club — Kiraleaf",
+    "url": "https://kiraleaf.example/pricing",
+    "snippet": "Single products cost $18–$34; most full routines cost under $100. Kira Club members get 15% off, free shipping over $40 and early launch access.",
+    "date": "2026-09-12",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Kira Club — Join the glow",
+    "url": "https://kiraleaf.example/kira-club",
+    "snippet": "Subscribe-and-save membership: 15% off every order, free shipping over $40, double rewards points. Over 310,000 active members. Late boxes since the July warehouse move get a $5 credit.",
+    "date": "2026-09-15",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Shop all — Kiraleaf",
+    "url": "https://kiraleaf.example/shop",
+    "snippet": "Full product list: Rice Milk Cleanser $20, Green Tea Toner $18, Centella Calm Essence $24, Dew Leaf Gel Cream $28, Bakuchiol Night Oil $34, Sun Veil SPF $32–34. Most products contain botanical fragrance.",
+    "date": "2026-09-20",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Kiraleaf's warehouse move hits deliveries during its biggest launch",
+    "url": "https://retailpulse.example/news/kiraleaf-fulfilment-delays",
+    "snippet": "On-time delivery fell from 93% to 64%; average delivery took 16.4 days in August (19 in the GCC). Kira Club cancellations up 22%; negative mentions rose from 18% to 37%.",
+    "date": "2026-09-17",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Kiraleaf orders taking forever? (megathread)",
+    "url": "https://skintalk.example/t/kiraleaf-shipping-delays",
+    "snippet": "214 replies: launch-day Sun Veil orders stuck in 'processing', Kira Club boxes three weeks late, $5 credits seen as inadequate, members cancelling. One order took 44 days.",
+    "date": "2026-09-25",
+    "source": "SkinTalk"
+   }
+  ]
+ },
+ {
+  "match": [
+   "kiraleaf",
+   "kira",
+   "leaf",
+   "positioning",
+   "brand",
+   "messaging",
+   "botanical",
+   "values",
+   "strategy",
+   "target",
+   "audience",
+   "usp",
+   "differentiation"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "Our story — Kiraleaf",
+    "url": "https://kiraleaf.example/about",
+    "snippet": "Founded in 2019 by Mira Kowal, Kiraleaf makes botanical skincare priced $18–$34. Team of 85, sells in 30 countries, 2.4M TikTok followers and 900K on Instagram.",
+    "date": "2026-08-01",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Kiraleaf — Botanical skincare for your everyday glow",
+    "url": "https://kiraleaf.example",
+    "snippet": "Plant-powered skincare with green tea, rice, centella and bakuchiol. New Sun Veil SPF 50 Serum. Join Kira Club and save 15% on every order.",
+    "date": "2026-09-28",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Kiraleaf bets big on SPF with Sun Veil serum launch",
+    "url": "https://beautywire.example/news/kiraleaf-sun-veil-launch",
+    "snippet": "TikTok-native Kiraleaf enters sun care with $32–34 SPF serums and 300 launch-day creators. Analysts warn its fulfilment problems and fragrance could blunt the launch.",
+    "date": "2026-08-14",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "Refillable packaging in 2026: who is doing it, and who is just saying it",
+    "url": "https://glossbrief.example/refillable-packaging",
+    "snippet": "Only 11 of 60 premium brands offer refills. Aurelle's $36 pouch with '68% less plastic' wins trust; Nuvéa's glass with no refills draws greenwashing criticism; Kiraleaf plans refills for 2027.",
+    "date": "2026-08-18",
+    "source": "GlossBrief"
+   },
+   {
+    "title": "The best barrier repair serums of 2026, tested",
+    "url": "https://dermdaily.example/best-barrier-serums-2026",
+    "snippet": "Aurelle Barrier Reset Serum ranks #1 (9.1) for gentleness, ahead of Nuvéa Barrier Lipid Complex (8.6, pricier) and Kiraleaf Centella Essence (7.4, contains fragrance). Pump issue noted.",
+    "date": "2026-09-15",
+    "source": "DermDaily"
+   }
+  ]
+ },
+ {
+  "match": [
+   "kiraleaf",
+   "kira",
+   "leaf",
+   "news",
+   "latest",
+   "recent",
+   "announcement",
+   "launch",
+   "launches",
+   "press",
+   "update",
+   "spf",
+   "sun",
+   "veil"
+  ],
+  "kind": "news",
+  "results": [
+   {
+    "title": "Kiraleaf's warehouse move hits deliveries during its biggest launch",
+    "url": "https://retailpulse.example/news/kiraleaf-fulfilment-delays",
+    "snippet": "On-time delivery fell from 93% to 64%; average delivery took 16.4 days in August (19 in the GCC). Kira Club cancellations up 22%; negative mentions rose from 18% to 37%.",
+    "date": "2026-09-17",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Shipping & delivery — Kiraleaf",
+    "url": "https://kiraleaf.example/shipping",
+    "snippet": "Update 2026-09-28: after a July move to a new fulfilment centre, standard orders take 7–14 business days to dispatch. GCC standard delivery is 7–12 days after dispatch.",
+    "date": "2026-09-28",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "GlossBrief — The week in beauty (issue #212)",
+    "url": "https://glossbrief.example/issues/2026-09-29",
+    "snippet": "Barrier mentions up 64%; Kiraleaf's negative mentions doubled over shipping; Nuvéa's Dubai pop-up draws crowds while dropping 'planet-positive'; skinimalism drives loyalty.",
+    "date": "2026-09-29",
+    "source": "GlossBrief"
+   },
+   {
+    "title": "Kiraleaf bets big on SPF with Sun Veil serum launch",
+    "url": "https://beautywire.example/news/kiraleaf-sun-veil-launch",
+    "snippet": "TikTok-native Kiraleaf enters sun care with $32–34 SPF serums and 300 launch-day creators. Analysts warn its fulfilment problems and fragrance could blunt the launch.",
+    "date": "2026-08-14",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "Kiraleaf launches Sun Veil, a botanical SPF serum line",
+    "url": "https://kiraleaf.example/press/spf-launch",
+    "snippet": "Press release: Sun Veil SPF 50 Serum ($32) and Tinted SPF 45 ($34) launch with 300 creators. Kiraleaf expects SPF to make up 25% of revenue in 2027.",
+    "date": "2026-08-12",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Meet the Kira Creators: how our community built #KiraGlow",
+    "url": "https://kiraleaf.example/blog/kira-creators",
+    "snippet": "420+ creators in 18 countries, 20% commission. #KiraGlow has 180M+ views; #SunVeilGlow reached 42M views in three weeks. 61% of new customers found Kiraleaf through a creator.",
+    "date": "2026-08-29",
+    "source": "Kiraleaf"
+   }
+  ]
+ },
+ {
+  "match": [
+   "kiraleaf",
+   "kira",
+   "leaf",
+   "reviews",
+   "review",
+   "complaints",
+   "complaint",
+   "reddit",
+   "forum",
+   "skintalk",
+   "shipping",
+   "delays",
+   "delay",
+   "delivery",
+   "late",
+   "problems",
+   "customers",
+   "sentiment"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "Kiraleaf orders taking forever? (megathread)",
+    "url": "https://skintalk.example/t/kiraleaf-shipping-delays",
+    "snippet": "214 replies: launch-day Sun Veil orders stuck in 'processing', Kira Club boxes three weeks late, $5 credits seen as inadequate, members cancelling. One order took 44 days.",
+    "date": "2026-09-25",
+    "source": "SkinTalk"
+   },
+   {
+    "title": "Shipping & delivery — Kiraleaf",
+    "url": "https://kiraleaf.example/shipping",
+    "snippet": "Update 2026-09-28: after a July move to a new fulfilment centre, standard orders take 7–14 business days to dispatch. GCC standard delivery is 7–12 days after dispatch.",
+    "date": "2026-09-28",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Kiraleaf's warehouse move hits deliveries during its biggest launch",
+    "url": "https://retailpulse.example/news/kiraleaf-fulfilment-delays",
+    "snippet": "On-time delivery fell from 93% to 64%; average delivery took 16.4 days in August (19 in the GCC). Kira Club cancellations up 22%; negative mentions rose from 18% to 37%.",
+    "date": "2026-09-17",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Sun Veil SPF 50 Serum — $32",
+    "url": "https://kiraleaf.example/products/sun-veil-spf-serum",
+    "snippet": "New in August 2026: a glowy SPF 50 PA++++ serum with green tea and rice ferment. Rated 4.3/5; reviews mention pilling, fragrance and long delivery times.",
+    "date": "2026-08-12",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "The best barrier repair serums of 2026, tested",
+    "url": "https://dermdaily.example/best-barrier-serums-2026",
+    "snippet": "Aurelle Barrier Reset Serum ranks #1 (9.1) for gentleness, ahead of Nuvéa Barrier Lipid Complex (8.6, pricier) and Kiraleaf Centella Essence (7.4, contains fragrance). Pump issue noted.",
+    "date": "2026-09-15",
+    "source": "DermDaily"
+   },
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   }
+  ]
+ },
+ {
+  "match": [
+   "kiraleaf",
+   "kira",
+   "leaf",
+   "social",
+   "media",
+   "tiktok",
+   "instagram",
+   "influencer",
+   "influencers",
+   "creators",
+   "creator",
+   "kiraglow",
+   "viral",
+   "ugc",
+   "affiliate"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "Meet the Kira Creators: how our community built #KiraGlow",
+    "url": "https://kiraleaf.example/blog/kira-creators",
+    "snippet": "420+ creators in 18 countries, 20% commission. #KiraGlow has 180M+ views; #SunVeilGlow reached 42M views in three weeks. 61% of new customers found Kiraleaf through a creator.",
+    "date": "2026-08-29",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Kiraleaf launches Sun Veil, a botanical SPF serum line",
+    "url": "https://kiraleaf.example/press/spf-launch",
+    "snippet": "Press release: Sun Veil SPF 50 Serum ($32) and Tinted SPF 45 ($34) launch with 300 creators. Kiraleaf expects SPF to make up 25% of revenue in 2027.",
+    "date": "2026-08-12",
+    "source": "Kiraleaf"
+   },
+   {
+    "title": "Kiraleaf bets big on SPF with Sun Veil serum launch",
+    "url": "https://beautywire.example/news/kiraleaf-sun-veil-launch",
+    "snippet": "TikTok-native Kiraleaf enters sun care with $32–34 SPF serums and 300 launch-day creators. Analysts warn its fulfilment problems and fragrance could blunt the launch.",
+    "date": "2026-08-14",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "GlossBrief — The week in beauty (issue #212)",
+    "url": "https://glossbrief.example/issues/2026-09-29",
+    "snippet": "Barrier mentions up 64%; Kiraleaf's negative mentions doubled over shipping; Nuvéa's Dubai pop-up draws crowds while dropping 'planet-positive'; skinimalism drives loyalty.",
+    "date": "2026-09-29",
+    "source": "GlossBrief"
+   },
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   }
+  ]
+ },
+ {
+  "match": [
+   "kiraleaf",
+   "kira",
+   "leaf",
+   "vs",
+   "versus",
+   "compare",
+   "comparison",
+   "alternative",
+   "alternatives",
+   "better"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "SPF serums reviewed: do they protect as well as they feel?",
+    "url": "https://dermdaily.example/spf-serums-reviewed",
+    "snippet": "Tested in Riyadh and Abu Dhabi: Kiraleaf Sun Veil is best for glow but shiny by noon; Aurelle Daily Veil is best for heat and sensitive skin; Nuvéa Daylight Shield is luxe but $72.",
+    "date": "2026-09-03",
+    "source": "DermDaily"
+   },
+   {
+    "title": "The best barrier repair serums of 2026, tested",
+    "url": "https://dermdaily.example/best-barrier-serums-2026",
+    "snippet": "Aurelle Barrier Reset Serum ranks #1 (9.1) for gentleness, ahead of Nuvéa Barrier Lipid Complex (8.6, pricier) and Kiraleaf Centella Essence (7.4, contains fragrance). Pump issue noted.",
+    "date": "2026-09-15",
+    "source": "DermDaily"
+   },
+   {
+    "title": "Skincare for 45°C and 80% humidity — what actually works? (GCC thread)",
+    "url": "https://skintalk.example/t/gcc-humidity-routines",
+    "snippet": "312 replies, pinned: keep it to four steps, use light textures, choose fragrance-free if sensitive, reapply SPF. Aurelle, Kiraleaf and Nuvéa's Climate Lab all mentioned.",
+    "date": "2026-09-25",
+    "source": "SkinTalk"
+   },
+   {
+    "title": "Kiraleaf's warehouse move hits deliveries during its biggest launch",
+    "url": "https://retailpulse.example/news/kiraleaf-fulfilment-delays",
+    "snippet": "On-time delivery fell from 93% to 64%; average delivery took 16.4 days in August (19 in the GCC). Kira Club cancellations up 22%; negative mentions rose from 18% to 37%.",
+    "date": "2026-09-17",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Kiraleaf bets big on SPF with Sun Veil serum launch",
+    "url": "https://beautywire.example/news/kiraleaf-sun-veil-launch",
+    "snippet": "TikTok-native Kiraleaf enters sun care with $32–34 SPF serums and 300 launch-day creators. Analysts warn its fulfilment problems and fragrance could blunt the launch.",
+    "date": "2026-08-14",
+    "source": "BeautyWire"
+   }
+  ]
+ },
+ {
+  "match": [
+   "kiraleaf",
+   "kira",
+   "leaf",
+   "mentions",
+   "mention",
+   "buzz",
+   "conversation",
+   "talking"
+  ],
+  "kind": "news",
+  "results": [
+   {
+    "title": "GlossBrief — The week in beauty (issue #212)",
+    "url": "https://glossbrief.example/issues/2026-09-29",
+    "snippet": "Barrier mentions up 64%; Kiraleaf's negative mentions doubled over shipping; Nuvéa's Dubai pop-up draws crowds while dropping 'planet-positive'; skinimalism drives loyalty.",
+    "date": "2026-09-29",
+    "source": "GlossBrief"
+   },
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Kiraleaf orders taking forever? (megathread)",
+    "url": "https://skintalk.example/t/kiraleaf-shipping-delays",
+    "snippet": "214 replies: launch-day Sun Veil orders stuck in 'processing', Kira Club boxes three weeks late, $5 credits seen as inadequate, members cancelling. One order took 44 days.",
+    "date": "2026-09-25",
+    "source": "SkinTalk"
+   },
+   {
+    "title": "Kiraleaf's warehouse move hits deliveries during its biggest launch",
+    "url": "https://retailpulse.example/news/kiraleaf-fulfilment-delays",
+    "snippet": "On-time delivery fell from 93% to 64%; average delivery took 16.4 days in August (19 in the GCC). Kira Club cancellations up 22%; negative mentions rose from 18% to 37%.",
+    "date": "2026-09-17",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Kiraleaf bets big on SPF with Sun Veil serum launch",
+    "url": "https://beautywire.example/news/kiraleaf-sun-veil-launch",
+    "snippet": "TikTok-native Kiraleaf enters sun care with $32–34 SPF serums and 300 launch-day creators. Analysts warn its fulfilment problems and fragrance could blunt the launch.",
+    "date": "2026-08-14",
+    "source": "BeautyWire"
+   }
+  ]
+ },
+ {
+  "match": [
+   "nuvea",
+   "nuv",
+   "nuvealabs",
+   "labs",
+   "overview",
+   "about",
+   "company",
+   "founded",
+   "founder",
+   "story",
+   "who",
+   "strand",
+   "copenhagen"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "About Nuvéa Labs",
+    "url": "https://nuvealabs.example/about",
+    "snippet": "Founded in 2020 in Copenhagen by biochemist Dr. Anika Strand and Jonas Brekke. 140 people, 22 scientists. $71M total funding after a $48M Series B in July 2026.",
+    "date": "2026-08-05",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Nuvéa Labs — Clinical skincare, personalised by science",
+    "url": "https://nuvealabs.example",
+    "snippet": "Take the free SkinScan AI quiz, built from 1.2 million skin analyses. Hero Cellular Renewal Concentrate $120. Now open: Nuvéa Labs Dubai pop-up at The Lumen Mall.",
+    "date": "2026-09-20",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Nuvéa Labs raises $48M to scale AI skin analysis and enter the Gulf",
+    "url": "https://beautywire.example/news/nuvea-labs-series-b",
+    "snippet": "Halvorsen Ventures leads the Series B. SkinScan drives 40% of new customers. Critics question the 34-person study behind '92% saw firmer skin'.",
+    "date": "2026-07-15",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "Nuvéa Labs raises $48M Series B",
+    "url": "https://nuvealabs.example/press/series-b",
+    "snippet": "Led by Halvorsen Ventures. Funds go to Middle East expansion, SkinScan 2.0, growing the lab to 35 scientists and larger clinical studies. Revenue grew 140% in 2025.",
+    "date": "2026-07-14",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   }
+  ]
+ },
+ {
+  "match": [
+   "nuvea",
+   "nuv",
+   "nuvealabs",
+   "labs",
+   "products",
+   "product",
+   "range",
+   "lineup",
+   "catalog",
+   "catalogue",
+   "regimen",
+   "concentrate",
+   "renewal",
+   "cellular",
+   "peptide",
+   "serum",
+   "bestsellers"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "The Nuvéa Labs regimen",
+    "url": "https://nuvealabs.example/products",
+    "snippet": "Six products from $42 to $120, each with a published clinical summary, e.g. '92% saw firmer-looking skin in 4 weeks (n=34)'. Renewal Regimen bundle $399.",
+    "date": "2026-09-01",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Cellular Renewal Concentrate — $120",
+    "url": "https://nuvealabs.example/products/cellular-renewal-concentrate",
+    "snippet": "Five-peptide complex, encapsulated bakuchiol and proprietary NV-Renew ferment. Claims based on a 34-person perception study. Reviews split between 'never looked better' and 'hard to justify'.",
+    "date": "2026-08-20",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Pricing — Nuvéa Labs",
+    "url": "https://nuvealabs.example/pricing",
+    "snippet": "Products cost $42–$120 ($4.00/ml for the Concentrate). Nuvéa Circle auto-replenish saves 10%. UAE prices from AED 250 to AED 445.",
+    "date": "2026-09-10",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "The best barrier repair serums of 2026, tested",
+    "url": "https://dermdaily.example/best-barrier-serums-2026",
+    "snippet": "Aurelle Barrier Reset Serum ranks #1 (9.1) for gentleness, ahead of Nuvéa Barrier Lipid Complex (8.6, pricier) and Kiraleaf Centella Essence (7.4, contains fragrance). Pump issue noted.",
+    "date": "2026-09-15",
+    "source": "DermDaily"
+   },
+   {
+    "title": "SPF serums reviewed: do they protect as well as they feel?",
+    "url": "https://dermdaily.example/spf-serums-reviewed",
+    "snippet": "Tested in Riyadh and Abu Dhabi: Kiraleaf Sun Veil is best for glow but shiny by noon; Aurelle Daily Veil is best for heat and sensitive skin; Nuvéa Daylight Shield is luxe but $72.",
+    "date": "2026-09-03",
+    "source": "DermDaily"
+   }
+  ]
+ },
+ {
+  "match": [
+   "nuvea",
+   "nuv",
+   "nuvealabs",
+   "labs",
+   "pricing",
+   "price",
+   "prices",
+   "cost",
+   "expensive",
+   "circle",
+   "membership",
+   "subscription",
+   "plans",
+   "aed"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "Pricing — Nuvéa Labs",
+    "url": "https://nuvealabs.example/pricing",
+    "snippet": "Products cost $42–$120 ($4.00/ml for the Concentrate). Nuvéa Circle auto-replenish saves 10%. UAE prices from AED 250 to AED 445.",
+    "date": "2026-09-10",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "The Nuvéa Labs regimen",
+    "url": "https://nuvealabs.example/products",
+    "snippet": "Six products from $42 to $120, each with a published clinical summary, e.g. '92% saw firmer-looking skin in 4 weeks (n=34)'. Renewal Regimen bundle $399.",
+    "date": "2026-09-01",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Is Nuvéa Labs actually worth $120? Honest opinions",
+    "url": "https://skintalk.example/t/nuvea-worth-the-price",
+    "snippet": "167 replies: good formulas but an overpriced hero; '92% from 34 people is not clinically proven'; packaging called greenwashing; Dubai pop-up praised as fun.",
+    "date": "2026-09-30",
+    "source": "SkinTalk"
+   },
+   {
+    "title": "Nuvéa Labs' Dubai pop-up: early read on the GCC's newest premium entrant",
+    "url": "https://retailpulse.example/news/nuvea-dubai-popup",
+    "snippet": "3,000+ scans in week one, 38% scan-to-purchase conversion, average basket ~AED 620. 54% of aware GCC consumers call Nuvéa 'too expensive for daily use'.",
+    "date": "2026-09-30",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "The best barrier repair serums of 2026, tested",
+    "url": "https://dermdaily.example/best-barrier-serums-2026",
+    "snippet": "Aurelle Barrier Reset Serum ranks #1 (9.1) for gentleness, ahead of Nuvéa Barrier Lipid Complex (8.6, pricier) and Kiraleaf Centella Essence (7.4, contains fragrance). Pump issue noted.",
+    "date": "2026-09-15",
+    "source": "DermDaily"
+   }
+  ]
+ },
+ {
+  "match": [
+   "nuvea",
+   "nuv",
+   "nuvealabs",
+   "labs",
+   "positioning",
+   "brand",
+   "messaging",
+   "science",
+   "clinical",
+   "claims",
+   "proven",
+   "premium",
+   "strategy",
+   "quiz",
+   "skinscan",
+   "ai",
+   "analysis",
+   "personalised",
+   "personalized"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "SkinScan™ — your AI skin analysis",
+    "url": "https://nuvealabs.example/skin-quiz",
+    "snippet": "Free 3-minute AI quiz: a selfie plus 12 questions scores seven skin markers. Selfies stored up to 12 months by default. SkinScan 2.0 will add a GCC heat mode.",
+    "date": "2026-09-05",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Nuvéa Labs — Clinical skincare, personalised by science",
+    "url": "https://nuvealabs.example",
+    "snippet": "Take the free SkinScan AI quiz, built from 1.2 million skin analyses. Hero Cellular Renewal Concentrate $120. Now open: Nuvéa Labs Dubai pop-up at The Lumen Mall.",
+    "date": "2026-09-20",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Cellular Renewal Concentrate — $120",
+    "url": "https://nuvealabs.example/products/cellular-renewal-concentrate",
+    "snippet": "Five-peptide complex, encapsulated bakuchiol and proprietary NV-Renew ferment. Claims based on a 34-person perception study. Reviews split between 'never looked better' and 'hard to justify'.",
+    "date": "2026-08-20",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Do AI skin quizzes actually sell skincare?",
+    "url": "https://beautywire.example/insights/ai-skin-quizzes",
+    "snippet": "Quiz-takers convert 3x better, but 31% of users say quizzes 'pushed too many products' and 24% worry about their photo. Aurelle's no-photo, four-product guide is the counter-model.",
+    "date": "2026-09-09",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "Nuvéa Labs raises $48M to scale AI skin analysis and enter the Gulf",
+    "url": "https://beautywire.example/news/nuvea-labs-series-b",
+    "snippet": "Halvorsen Ventures leads the Series B. SkinScan drives 40% of new customers. Critics question the 34-person study behind '92% saw firmer skin'.",
+    "date": "2026-07-15",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "Is Nuvéa Labs actually worth $120? Honest opinions",
+    "url": "https://skintalk.example/t/nuvea-worth-the-price",
+    "snippet": "167 replies: good formulas but an overpriced hero; '92% from 34 people is not clinically proven'; packaging called greenwashing; Dubai pop-up praised as fun.",
+    "date": "2026-09-30",
+    "source": "SkinTalk"
+   }
+  ]
+ },
+ {
+  "match": [
+   "nuvea",
+   "nuv",
+   "nuvealabs",
+   "labs",
+   "news",
+   "latest",
+   "recent",
+   "announcement",
+   "press",
+   "update",
+   "dubai",
+   "popup",
+   "pop",
+   "store",
+   "expansion",
+   "gcc"
+  ],
+  "kind": "news",
+  "results": [
+   {
+    "title": "Nuvéa Labs' Dubai pop-up: early read on the GCC's newest premium entrant",
+    "url": "https://retailpulse.example/news/nuvea-dubai-popup",
+    "snippet": "3,000+ scans in week one, 38% scan-to-purchase conversion, average basket ~AED 620. 54% of aware GCC consumers call Nuvéa 'too expensive for daily use'.",
+    "date": "2026-09-30",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Nuvéa Labs opens its first Middle East pop-up in Dubai",
+    "url": "https://nuvealabs.example/press/dubai-popup",
+    "snippet": "140 m² pop-up at The Lumen Mall until 31 December 2026, with in-person SkinScan, a 42°C 'Climate Lab' and an AED 990 Desert Renewal Kit. 3,000 bookings in week one.",
+    "date": "2026-09-20",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "GlossBrief — The week in beauty (issue #212)",
+    "url": "https://glossbrief.example/issues/2026-09-29",
+    "snippet": "Barrier mentions up 64%; Kiraleaf's negative mentions doubled over shipping; Nuvéa's Dubai pop-up draws crowds while dropping 'planet-positive'; skinimalism drives loyalty.",
+    "date": "2026-09-29",
+    "source": "GlossBrief"
+   },
+   {
+    "title": "Nuvéa Labs raises $48M to scale AI skin analysis and enter the Gulf",
+    "url": "https://beautywire.example/news/nuvea-labs-series-b",
+    "snippet": "Halvorsen Ventures leads the Series B. SkinScan drives 40% of new customers. Critics question the 34-person study behind '92% saw firmer skin'.",
+    "date": "2026-07-15",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "Nuvéa Labs raises $48M Series B",
+    "url": "https://nuvealabs.example/press/series-b",
+    "snippet": "Led by Halvorsen Ventures. Funds go to Middle East expansion, SkinScan 2.0, growing the lab to 35 scientists and larger clinical studies. Revenue grew 140% in 2025.",
+    "date": "2026-07-14",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Sustainability at Nuvéa Labs",
+    "url": "https://nuvealabs.example/sustainability",
+    "snippet": "'Infinitely recyclable glass' and offset shipping, but droppers and pumps are not recyclable and there are no refills. 'Planet-positive packaging' was removed on 2026-09-02 after feedback.",
+    "date": "2026-09-02",
+    "source": "Nuvéa Labs"
+   }
+  ]
+ },
+ {
+  "match": [
+   "nuvea",
+   "nuv",
+   "nuvealabs",
+   "labs",
+   "funding",
+   "series",
+   "raise",
+   "raised",
+   "investors",
+   "investment",
+   "valuation",
+   "halvorsen",
+   "venture"
+  ],
+  "kind": "any",
+  "results": [
+   {
+    "title": "Nuvéa Labs raises $48M Series B",
+    "url": "https://nuvealabs.example/press/series-b",
+    "snippet": "Led by Halvorsen Ventures. Funds go to Middle East expansion, SkinScan 2.0, growing the lab to 35 scientists and larger clinical studies. Revenue grew 140% in 2025.",
+    "date": "2026-07-14",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Nuvéa Labs raises $48M to scale AI skin analysis and enter the Gulf",
+    "url": "https://beautywire.example/news/nuvea-labs-series-b",
+    "snippet": "Halvorsen Ventures leads the Series B. SkinScan drives 40% of new customers. Critics question the 34-person study behind '92% saw firmer skin'.",
+    "date": "2026-07-15",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "About Nuvéa Labs",
+    "url": "https://nuvealabs.example/about",
+    "snippet": "Founded in 2020 in Copenhagen by biochemist Dr. Anika Strand and Jonas Brekke. 140 people, 22 scientists. $71M total funding after a $48M Series B in July 2026.",
+    "date": "2026-08-05",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Nuvéa Labs' Dubai pop-up: early read on the GCC's newest premium entrant",
+    "url": "https://retailpulse.example/news/nuvea-dubai-popup",
+    "snippet": "3,000+ scans in week one, 38% scan-to-purchase conversion, average basket ~AED 620. 54% of aware GCC consumers call Nuvéa 'too expensive for daily use'.",
+    "date": "2026-09-30",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "GlossBrief — The week in beauty (issue #212)",
+    "url": "https://glossbrief.example/issues/2026-09-29",
+    "snippet": "Barrier mentions up 64%; Kiraleaf's negative mentions doubled over shipping; Nuvéa's Dubai pop-up draws crowds while dropping 'planet-positive'; skinimalism drives loyalty.",
+    "date": "2026-09-29",
+    "source": "GlossBrief"
+   }
+  ]
+ },
+ {
+  "match": [
+   "nuvea",
+   "nuv",
+   "nuvealabs",
+   "labs",
+   "reviews",
+   "review",
+   "complaints",
+   "complaint",
+   "reddit",
+   "forum",
+   "skintalk",
+   "greenwashing",
+   "packaging",
+   "sustainability",
+   "worth",
+   "sentiment",
+   "criticism"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "Is Nuvéa Labs actually worth $120? Honest opinions",
+    "url": "https://skintalk.example/t/nuvea-worth-the-price",
+    "snippet": "167 replies: good formulas but an overpriced hero; '92% from 34 people is not clinically proven'; packaging called greenwashing; Dubai pop-up praised as fun.",
+    "date": "2026-09-30",
+    "source": "SkinTalk"
+   },
+   {
+    "title": "Sustainability at Nuvéa Labs",
+    "url": "https://nuvealabs.example/sustainability",
+    "snippet": "'Infinitely recyclable glass' and offset shipping, but droppers and pumps are not recyclable and there are no refills. 'Planet-positive packaging' was removed on 2026-09-02 after feedback.",
+    "date": "2026-09-02",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Refillable packaging in 2026: who is doing it, and who is just saying it",
+    "url": "https://glossbrief.example/refillable-packaging",
+    "snippet": "Only 11 of 60 premium brands offer refills. Aurelle's $36 pouch with '68% less plastic' wins trust; Nuvéa's glass with no refills draws greenwashing criticism; Kiraleaf plans refills for 2027.",
+    "date": "2026-08-18",
+    "source": "GlossBrief"
+   },
+   {
+    "title": "Cellular Renewal Concentrate — $120",
+    "url": "https://nuvealabs.example/products/cellular-renewal-concentrate",
+    "snippet": "Five-peptide complex, encapsulated bakuchiol and proprietary NV-Renew ferment. Claims based on a 34-person perception study. Reviews split between 'never looked better' and 'hard to justify'.",
+    "date": "2026-08-20",
+    "source": "Nuvéa Labs"
+   },
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Nuvéa Labs' Dubai pop-up: early read on the GCC's newest premium entrant",
+    "url": "https://retailpulse.example/news/nuvea-dubai-popup",
+    "snippet": "3,000+ scans in week one, 38% scan-to-purchase conversion, average basket ~AED 620. 54% of aware GCC consumers call Nuvéa 'too expensive for daily use'.",
+    "date": "2026-09-30",
+    "source": "RetailPulse"
+   }
+  ]
+ },
+ {
+  "match": [
+   "nuvea",
+   "nuv",
+   "nuvealabs",
+   "labs",
+   "social",
+   "media",
+   "tiktok",
+   "instagram",
+   "influencer",
+   "influencers",
+   "creators",
+   "viral",
+   "mentions",
+   "buzz"
+  ],
+  "kind": "any",
+  "results": [
+   {
+    "title": "GlossBrief — The week in beauty (issue #212)",
+    "url": "https://glossbrief.example/issues/2026-09-29",
+    "snippet": "Barrier mentions up 64%; Kiraleaf's negative mentions doubled over shipping; Nuvéa's Dubai pop-up draws crowds while dropping 'planet-positive'; skinimalism drives loyalty.",
+    "date": "2026-09-29",
+    "source": "GlossBrief"
+   },
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Nuvéa Labs' Dubai pop-up: early read on the GCC's newest premium entrant",
+    "url": "https://retailpulse.example/news/nuvea-dubai-popup",
+    "snippet": "3,000+ scans in week one, 38% scan-to-purchase conversion, average basket ~AED 620. 54% of aware GCC consumers call Nuvéa 'too expensive for daily use'.",
+    "date": "2026-09-30",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Is Nuvéa Labs actually worth $120? Honest opinions",
+    "url": "https://skintalk.example/t/nuvea-worth-the-price",
+    "snippet": "167 replies: good formulas but an overpriced hero; '92% from 34 people is not clinically proven'; packaging called greenwashing; Dubai pop-up praised as fun.",
+    "date": "2026-09-30",
+    "source": "SkinTalk"
+   },
+   {
+    "title": "Do AI skin quizzes actually sell skincare?",
+    "url": "https://beautywire.example/insights/ai-skin-quizzes",
+    "snippet": "Quiz-takers convert 3x better, but 31% of users say quizzes 'pushed too many products' and 24% worry about their photo. Aurelle's no-photo, four-product guide is the counter-model.",
+    "date": "2026-09-09",
+    "source": "BeautyWire"
+   }
+  ]
+ },
+ {
+  "match": [
+   "nuvea",
+   "nuv",
+   "nuvealabs",
+   "labs",
+   "vs",
+   "versus",
+   "compare",
+   "comparison",
+   "alternative",
+   "alternatives",
+   "better"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "The best barrier repair serums of 2026, tested",
+    "url": "https://dermdaily.example/best-barrier-serums-2026",
+    "snippet": "Aurelle Barrier Reset Serum ranks #1 (9.1) for gentleness, ahead of Nuvéa Barrier Lipid Complex (8.6, pricier) and Kiraleaf Centella Essence (7.4, contains fragrance). Pump issue noted.",
+    "date": "2026-09-15",
+    "source": "DermDaily"
+   },
+   {
+    "title": "SPF serums reviewed: do they protect as well as they feel?",
+    "url": "https://dermdaily.example/spf-serums-reviewed",
+    "snippet": "Tested in Riyadh and Abu Dhabi: Kiraleaf Sun Veil is best for glow but shiny by noon; Aurelle Daily Veil is best for heat and sensitive skin; Nuvéa Daylight Shield is luxe but $72.",
+    "date": "2026-09-03",
+    "source": "DermDaily"
+   },
+   {
+    "title": "Is Nuvéa Labs actually worth $120? Honest opinions",
+    "url": "https://skintalk.example/t/nuvea-worth-the-price",
+    "snippet": "167 replies: good formulas but an overpriced hero; '92% from 34 people is not clinically proven'; packaging called greenwashing; Dubai pop-up praised as fun.",
+    "date": "2026-09-30",
+    "source": "SkinTalk"
+   },
+   {
+    "title": "Nuvéa Labs' Dubai pop-up: early read on the GCC's newest premium entrant",
+    "url": "https://retailpulse.example/news/nuvea-dubai-popup",
+    "snippet": "3,000+ scans in week one, 38% scan-to-purchase conversion, average basket ~AED 620. 54% of aware GCC consumers call Nuvéa 'too expensive for daily use'.",
+    "date": "2026-09-30",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Skinimalism: why dermatologists love the four-step routine",
+    "url": "https://dermdaily.example/skinimalism-guide",
+    "snippet": "Searches for 'simple skincare routine' are up 48%. Aurelle caps routines at four products; quiz-led Nuvéa often recommends five or six.",
+    "date": "2026-07-30",
+    "source": "DermDaily"
+   }
+  ]
+ },
+ {
+  "match": [
+   "aurelle",
+   "aurelleskin",
+   "skin",
+   "brand",
+   "about",
+   "company",
+   "story",
+   "founded",
+   "founder",
+   "mission",
+   "values",
+   "voice",
+   "haddad",
+   "dermatologist",
+   "dermatologists"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "About Aurelle Skin",
+    "url": "https://aurelle.example/about",
+    "snippet": "Founded in Dubai in 2021 by consultant dermatologist Dr. Leila Haddad. Barrier first, fewer steps, clear claims, made for heat. 180,000+ customers; 62% of orders ship within the GCC.",
+    "date": "2026-07-01",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "Aurelle Skin — Barrier-first skincare, developed with dermatologists",
+    "url": "https://aurelle.example",
+    "snippet": "Short, fragrance-free routines developed with four dermatologists. Hero Barrier Reset Serum $42. Free express GCC shipping over AED 150 in 1–3 days; ships to 40+ countries.",
+    "date": "2026-09-30",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "Our dermatologists — Aurelle Skin",
+    "url": "https://aurelle.example/our-dermatologists",
+    "snippet": "Dr. Leila Haddad (Dubai), Dr. Priya Menon (Abu Dhabi), Dr. Karim Saleh (Riyadh) and Dr. Hanna Lindqvist (Stockholm) develop every formula and sign off every claim.",
+    "date": "2026-06-10",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "The GCC's skincare boom: heat, humidity and a hunger for expertise",
+    "url": "https://beautywire.example/news/gcc-skincare-market-2026",
+    "snippet": "GCC skincare grows ~9% a year. 67% of shoppers say 'suitable for hot climates' influences purchases; 58% prefer fragrance-free; 44% say delivery speed matters.",
+    "date": "2026-08-27",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "Aurelle launches refill pouches for Barrier Reset Serum",
+    "url": "https://aurelle.example/press/refill-pouches",
+    "snippet": "Refill pouch at $36 uses 68% less plastic, with an independent LCA. Aurelle avoids 'eco' claims and admits its pump is not widely recyclable in the GCC.",
+    "date": "2026-06-16",
+    "source": "Aurelle Skin"
+   }
+  ]
+ },
+ {
+  "match": [
+   "aurelle",
+   "aurelleskin",
+   "skin",
+   "products",
+   "product",
+   "range",
+   "shop",
+   "serum",
+   "barrier",
+   "reset",
+   "cleanser",
+   "spf",
+   "veil",
+   "balm",
+   "ingredients",
+   "hero"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "Barrier Reset Serum — $42 (30 ml)",
+    "url": "https://aurelle.example/products/barrier-reset-serum",
+    "snippet": "Ceramide complex in a 3:1:1 ratio, 5% panthenol, squalane and 2% niacinamide. Fragrance-free, 4.7/5 from 3,180 reviews. 81% saw less redness in 4 weeks (n=48). New pump from the November batch.",
+    "date": "2026-09-27",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "Shop all — Aurelle Skin",
+    "url": "https://aurelle.example/shop",
+    "snippet": "Calm Cloud Cleanser $24, Barrier Reset Serum $42, refill $36, Daily Veil SPF 40 $36, Ceramide Night Balm $38, Hydra-Mist Toner $26. The Reset Ritual set costs $92. Replenish subscription saves 10%.",
+    "date": "2026-09-15",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "Aurelle Skin — Barrier-first skincare, developed with dermatologists",
+    "url": "https://aurelle.example",
+    "snippet": "Short, fragrance-free routines developed with four dermatologists. Hero Barrier Reset Serum $42. Free express GCC shipping over AED 150 in 1–3 days; ships to 40+ countries.",
+    "date": "2026-09-30",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "The best barrier repair serums of 2026, tested",
+    "url": "https://dermdaily.example/best-barrier-serums-2026",
+    "snippet": "Aurelle Barrier Reset Serum ranks #1 (9.1) for gentleness, ahead of Nuvéa Barrier Lipid Complex (8.6, pricier) and Kiraleaf Centella Essence (7.4, contains fragrance). Pump issue noted.",
+    "date": "2026-09-15",
+    "source": "DermDaily"
+   },
+   {
+    "title": "SPF serums reviewed: do they protect as well as they feel?",
+    "url": "https://dermdaily.example/spf-serums-reviewed",
+    "snippet": "Tested in Riyadh and Abu Dhabi: Kiraleaf Sun Veil is best for glow but shiny by noon; Aurelle Daily Veil is best for heat and sensitive skin; Nuvéa Daylight Shield is luxe but $72.",
+    "date": "2026-09-03",
+    "source": "DermDaily"
+   }
+  ]
+ },
+ {
+  "match": [
+   "aurelle",
+   "aurelleskin",
+   "skin",
+   "audience",
+   "customers",
+   "customer",
+   "target",
+   "demographic",
+   "persona",
+   "who",
+   "buyers",
+   "market",
+   "segment"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "About Aurelle Skin",
+    "url": "https://aurelle.example/about",
+    "snippet": "Founded in Dubai in 2021 by consultant dermatologist Dr. Leila Haddad. Barrier first, fewer steps, clear claims, made for heat. 180,000+ customers; 62% of orders ship within the GCC.",
+    "date": "2026-07-01",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "The GCC's skincare boom: heat, humidity and a hunger for expertise",
+    "url": "https://beautywire.example/news/gcc-skincare-market-2026",
+    "snippet": "GCC skincare grows ~9% a year. 67% of shoppers say 'suitable for hot climates' influences purchases; 58% prefer fragrance-free; 44% say delivery speed matters.",
+    "date": "2026-08-27",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "Customer reviews — Aurelle Skin",
+    "url": "https://aurelle.example/reviews",
+    "snippet": "4.7/5 from 9,400 reviews. Customers praise gentleness on rosacea and sensitive skin and how it performs in Gulf heat; several say the serum pump stops before the bottle is empty.",
+    "date": "2026-09-26",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "The GCC summer routine: barrier care at 45°C",
+    "url": "https://aurelle.example/journal/gcc-summer-routine",
+    "snippet": "Aurelle Journal: a four-step routine for heat, humidity and air-conditioning. 58% of surveyed GCC customers skip SPF on days they stay inside.",
+    "date": "2026-07-08",
+    "source": "Aurelle Skin"
+   }
+  ]
+ },
+ {
+  "match": [
+   "aurelle",
+   "aurelleskin",
+   "skin",
+   "reviews",
+   "review",
+   "complaints",
+   "complaint",
+   "reddit",
+   "forum",
+   "skintalk",
+   "pump",
+   "sentiment",
+   "rating",
+   "ratings",
+   "feedback"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "Customer reviews — Aurelle Skin",
+    "url": "https://aurelle.example/reviews",
+    "snippet": "4.7/5 from 9,400 reviews. Customers praise gentleness on rosacea and sensitive skin and how it performs in Gulf heat; several say the serum pump stops before the bottle is empty.",
+    "date": "2026-09-26",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "Aurelle Barrier Reset Serum — 6 week review (sensitive / rosacea skin)",
+    "url": "https://skintalk.example/t/aurelle-barrier-reset-review",
+    "snippet": "98 replies: redness down, no stinging, no pilling under SPF, 9/10. Several users report the pump dying with ~10% left; Aurelle sent free refills and confirmed a new pump.",
+    "date": "2026-09-27",
+    "source": "SkinTalk"
+   },
+   {
+    "title": "The best barrier repair serums of 2026, tested",
+    "url": "https://dermdaily.example/best-barrier-serums-2026",
+    "snippet": "Aurelle Barrier Reset Serum ranks #1 (9.1) for gentleness, ahead of Nuvéa Barrier Lipid Complex (8.6, pricier) and Kiraleaf Centella Essence (7.4, contains fragrance). Pump issue noted.",
+    "date": "2026-09-15",
+    "source": "DermDaily"
+   },
+   {
+    "title": "FAQ — Aurelle Skin",
+    "url": "https://aurelle.example/faq",
+    "snippet": "Sensitive skin, layering with retinol, GCC shipping, Replenish and refills. Explains the pump issue: some pumps stop with ~10% left; care@ replaces them; redesigned pump from November 2026.",
+    "date": "2026-09-27",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   }
+  ]
+ },
+ {
+  "match": [
+   "aurelle",
+   "aurelleskin",
+   "skin",
+   "news",
+   "latest",
+   "recent",
+   "press",
+   "mentions",
+   "mention",
+   "coverage",
+   "announcement",
+   "update",
+   "refill",
+   "refills"
+  ],
+  "kind": "news",
+  "results": [
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "The best barrier repair serums of 2026, tested",
+    "url": "https://dermdaily.example/best-barrier-serums-2026",
+    "snippet": "Aurelle Barrier Reset Serum ranks #1 (9.1) for gentleness, ahead of Nuvéa Barrier Lipid Complex (8.6, pricier) and Kiraleaf Centella Essence (7.4, contains fragrance). Pump issue noted.",
+    "date": "2026-09-15",
+    "source": "DermDaily"
+   },
+   {
+    "title": "GlossBrief — The week in beauty (issue #212)",
+    "url": "https://glossbrief.example/issues/2026-09-29",
+    "snippet": "Barrier mentions up 64%; Kiraleaf's negative mentions doubled over shipping; Nuvéa's Dubai pop-up draws crowds while dropping 'planet-positive'; skinimalism drives loyalty.",
+    "date": "2026-09-29",
+    "source": "GlossBrief"
+   },
+   {
+    "title": "Aurelle launches refill pouches for Barrier Reset Serum",
+    "url": "https://aurelle.example/press/refill-pouches",
+    "snippet": "Refill pouch at $36 uses 68% less plastic, with an independent LCA. Aurelle avoids 'eco' claims and admits its pump is not widely recyclable in the GCC.",
+    "date": "2026-06-16",
+    "source": "Aurelle Skin"
+   },
+   {
+    "title": "Kiraleaf's warehouse move hits deliveries during its biggest launch",
+    "url": "https://retailpulse.example/news/kiraleaf-fulfilment-delays",
+    "snippet": "On-time delivery fell from 93% to 64%; average delivery took 16.4 days in August (19 in the GCC). Kira Club cancellations up 22%; negative mentions rose from 18% to 37%.",
+    "date": "2026-09-17",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Aurelle Barrier Reset Serum — 6 week review (sensitive / rosacea skin)",
+    "url": "https://skintalk.example/t/aurelle-barrier-reset-review",
+    "snippet": "98 replies: redness down, no stinging, no pilling under SPF, 9/10. Several users report the pump dying with ~10% left; Aurelle sent free refills and confirmed a new pump.",
+    "date": "2026-09-27",
+    "source": "SkinTalk"
+   }
+  ]
+ },
+ {
+  "match": [
+   "aurelle",
+   "aurelleskin",
+   "skin",
+   "vs",
+   "versus",
+   "compare",
+   "comparison",
+   "competitors",
+   "competitor",
+   "alternative",
+   "alternatives"
+  ],
+  "kind": "web",
+  "results": [
+   {
+    "title": "The best barrier repair serums of 2026, tested",
+    "url": "https://dermdaily.example/best-barrier-serums-2026",
+    "snippet": "Aurelle Barrier Reset Serum ranks #1 (9.1) for gentleness, ahead of Nuvéa Barrier Lipid Complex (8.6, pricier) and Kiraleaf Centella Essence (7.4, contains fragrance). Pump issue noted.",
+    "date": "2026-09-15",
+    "source": "DermDaily"
+   },
+   {
+    "title": "SPF serums reviewed: do they protect as well as they feel?",
+    "url": "https://dermdaily.example/spf-serums-reviewed",
+    "snippet": "Tested in Riyadh and Abu Dhabi: Kiraleaf Sun Veil is best for glow but shiny by noon; Aurelle Daily Veil is best for heat and sensitive skin; Nuvéa Daylight Shield is luxe but $72.",
+    "date": "2026-09-03",
+    "source": "DermDaily"
+   },
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Is Nuvéa Labs actually worth $120? Honest opinions",
+    "url": "https://skintalk.example/t/nuvea-worth-the-price",
+    "snippet": "167 replies: good formulas but an overpriced hero; '92% from 34 people is not clinically proven'; packaging called greenwashing; Dubai pop-up praised as fun.",
+    "date": "2026-09-30",
+    "source": "SkinTalk"
+   },
+   {
+    "title": "The GCC's skincare boom: heat, humidity and a hunger for expertise",
+    "url": "https://beautywire.example/news/gcc-skincare-market-2026",
+    "snippet": "GCC skincare grows ~9% a year. 67% of shoppers say 'suitable for hot climates' influences purchases; 58% prefer fragrance-free; 44% say delivery speed matters.",
+    "date": "2026-08-27",
+    "source": "BeautyWire"
+   }
+  ]
+ },
+ {
+  "match": [],
+  "kind": "any",
+  "results": [
+   {
+    "title": "GlossBrief — The week in beauty (issue #212)",
+    "url": "https://glossbrief.example/issues/2026-09-29",
+    "snippet": "Barrier mentions up 64%; Kiraleaf's negative mentions doubled over shipping; Nuvéa's Dubai pop-up draws crowds while dropping 'planet-positive'; skinimalism drives loyalty.",
+    "date": "2026-09-29",
+    "source": "GlossBrief"
+   },
+   {
+    "title": "Q3 2026 skincare sentiment tracker: barrier-first brands lead",
+    "url": "https://retailpulse.example/reports/q3-2026-skincare-sentiment",
+    "snippet": "184,000 mentions. Aurelle is 71% positive / 8% negative (pump), Kiraleaf 46% / 37% (shipping), Nuvéa 44% / 25% (price, greenwashing). 'Skin barrier' up 64%.",
+    "date": "2026-10-02",
+    "source": "RetailPulse"
+   },
+   {
+    "title": "Your skin barrier, explained",
+    "url": "https://dermdaily.example/skin-barrier-explained",
+    "snippet": "Dermatologist Dr. Selin Aras on what the barrier is, signs of damage, and what helps: simplify, replace lipids, soothe and avoid fragrance. Searches up ~70% year on year.",
+    "date": "2026-06-22",
+    "source": "DermDaily"
+   },
+   {
+    "title": "Skinimalism: why dermatologists love the four-step routine",
+    "url": "https://dermdaily.example/skinimalism-guide",
+    "snippet": "Searches for 'simple skincare routine' are up 48%. Aurelle caps routines at four products; quiz-led Nuvéa often recommends five or six.",
+    "date": "2026-07-30",
+    "source": "DermDaily"
+   },
+   {
+    "title": "The GCC's skincare boom: heat, humidity and a hunger for expertise",
+    "url": "https://beautywire.example/news/gcc-skincare-market-2026",
+    "snippet": "GCC skincare grows ~9% a year. 67% of shoppers say 'suitable for hot climates' influences purchases; 58% prefer fragrance-free; 44% say delivery speed matters.",
+    "date": "2026-08-27",
+    "source": "BeautyWire"
+   },
+   {
+    "title": "Refillable packaging in 2026: who is doing it, and who is just saying it",
+    "url": "https://glossbrief.example/refillable-packaging",
+    "snippet": "Only 11 of 60 premium brands offer refills. Aurelle's $36 pouch with '68% less plastic' wins trust; Nuvéa's glass with no refills draws greenwashing criticism; Kiraleaf plans refills for 2027.",
+    "date": "2026-08-18",
+    "source": "GlossBrief"
+   }
+  ]
+ }
+]
