@@ -4,7 +4,7 @@
   note: Two specialists in sequence; the research result feeds the drafts.
 - request: "What are people saying about Aurelle Skin this month, and how does Nuvéa Labs compare?"
   mock: true
-  note: trend_monitoring + competitor_research, then synthesis.
+  note: Independent parts run in parallel in one round, then synthesis.
 - request: "Give me 2 LinkedIn posts about skinimalism for Aurelle Skin."
   mock: true
   note: Single specialist; the answer is passed through verbatim.

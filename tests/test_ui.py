@@ -105,3 +105,23 @@ def test_run_failure_renders_as_error(monkeypatch):
     assert not at.exception
     rendered = str([e.proto for e in at.main] + [e.proto for e in at.get("html")])
     assert "No answer this time" in rendered and "ANTHROPIC_API_KEY" in rendered
+
+
+def test_team_strip_shows_parallel_specialists():
+    from core.trace import Step
+
+    # Import only the pure helper: executing the whole script needs a Streamlit runtime.
+    src = open(APP).read()
+    ns = {}
+    exec(compile(src[src.index("def team_status("):src.index("STATUS_WORDS = {")], APP, "exec"),
+         {"Step": Step, "TEAM": ["supervisor", "competitor_research", "content_drafting", "trend_monitoring"]}, ns)
+    team_status = ns["team_status"]
+    route = lambda a: Step("route", "supervisor", "", data={"agent": a})
+    steps = [route("trend_monitoring"), route("trend_monitoring"), route("competitor_research")]
+    st = team_status(steps, running=True)
+    assert st["trend_monitoring"] == st["competitor_research"] == "active" and st["supervisor"] == "idle"
+    st = team_status(steps + [Step("agent_answer", "trend_monitoring", "")], running=True)
+    assert st["trend_monitoring"] == "active"  # its second task is still running
+    st = team_status(steps + [Step("agent_answer", "trend_monitoring", ""), Step("agent_answer", "trend_monitoring", ""),
+                              Step("agent_answer", "competitor_research", "")], running=True)
+    assert st["trend_monitoring"] == st["competitor_research"] == "done" and st["supervisor"] == "active"

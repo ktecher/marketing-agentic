@@ -64,7 +64,7 @@ def wire(monkeypatch):
 
 def test_single_agent_answer_is_returned_verbatim(wire):
     steps, router = wire([
-        {"reasoning": "competitor question", "action": "delegate", "agent": "competitor_research", "task": "Research Kiraleaf"},
+        {"reasoning": "competitor question", "action": "delegate", "assignments": [{"agent": "competitor_research", "task": "Research Kiraleaf"}]},
         {"reasoning": "done", "action": "finish"},
     ])
     assert [s.kind for s in steps] == ["route", "agent_answer", "route", "final"]
@@ -88,8 +88,8 @@ def test_multi_step_passes_context_and_synthesises(wire):
     agents = {"competitor_research": _fake_agent("competitor_research", reply="KIRA REPORT"), "content_drafting": g.compile()}
 
     steps, router = wire([
-        {"reasoning": "research first", "action": "delegate", "agent": "competitor_research", "task": "Research Kiraleaf"},
-        {"reasoning": "now draft", "action": "delegate", "agent": "content_drafting", "task": "3 posts vs Kiraleaf"},
+        {"reasoning": "research first", "action": "delegate", "assignments": [{"agent": "competitor_research", "task": "Research Kiraleaf"}]},
+        {"reasoning": "now draft", "action": "delegate", "assignments": [{"agent": "content_drafting", "task": "3 posts vs Kiraleaf"}]},
         {"reasoning": "all served", "action": "finish"},
     ], agents=agents)
 
@@ -103,8 +103,8 @@ def test_failing_agent_is_reported_and_run_continues(wire):
     agents = {"competitor_research": _fake_agent("competitor_research", error=ConnectionError("boom")),
               "trend_monitoring": _fake_agent("trend_monitoring")}
     steps, router = wire([
-        {"reasoning": "r", "action": "delegate", "agent": "competitor_research", "task": "Research X"},
-        {"reasoning": "fallback", "action": "delegate", "agent": "trend_monitoring", "task": "Mentions of X"},
+        {"reasoning": "r", "action": "delegate", "assignments": [{"agent": "competitor_research", "task": "Research X"}]},
+        {"reasoning": "fallback", "action": "delegate", "assignments": [{"agent": "trend_monitoring", "task": "Mentions of X"}]},
         {"reasoning": "done", "action": "finish"},
     ], agents=agents)
     errors = [s for s in steps if s.kind == "error"]
@@ -121,7 +121,7 @@ def test_no_agent_needed_replies_directly(wire):
 
 def test_step_limit_stops_a_looping_router(wire, monkeypatch):
     app = load_config()
-    loop = [{"reasoning": "again", "action": "delegate", "agent": "trend_monitoring", "task": "t"}] * 20
+    loop = [{"reasoning": "again", "action": "delegate", "assignments": [{"agent": "trend_monitoring", "task": "t"}]}] * 20
     steps, _ = wire(loop)
     assert sum(s.kind == "agent_answer" for s in steps) == app.supervisor.max_steps
     assert steps[-1].kind == "final"
@@ -147,7 +147,8 @@ def test_roster_comes_from_config_not_code(wire, monkeypatch, tmp_path):
 
     monkeypatch.setattr(supervisor, "get_model", lambda spec: Model())
     supervisor.build_supervisor(app)  # the REAL builder: registry + config decide the roster
-    choices = set(seen["schema"].model_fields["agent"].annotation.__args__[0].__args__)
+    assignment = seen["schema"].model_fields["assignments"].annotation.__args__[0]
+    choices = set(assignment.model_fields["agent"].annotation.__args__)
     assert choices == {"competitor_research", "content_drafting"}
 
 
@@ -161,7 +162,7 @@ def test_misconfigured_llm_becomes_error_step(monkeypatch):
 
 
 def test_router_failure_keeps_finished_work(wire):
-    decisions = [{"reasoning": "r", "action": "delegate", "agent": "competitor_research", "task": "Research X"}]
+    decisions = [{"reasoning": "r", "action": "delegate", "assignments": [{"agent": "competitor_research", "task": "Research X"}]}]
     # second route call raises: ScriptedRouter pops from an empty list
     steps, _ = wire(decisions)
     assert any(s.kind == "error" and "Routing failed" in s.title for s in steps)
@@ -170,9 +171,62 @@ def test_router_failure_keeps_finished_work(wire):
 
 def test_synthesis_failure_returns_outputs_as_delivered(wire, monkeypatch):
     steps, router = wire([
-        {"reasoning": "a", "action": "delegate", "agent": "competitor_research", "task": "Research X"},
-        {"reasoning": "b", "action": "delegate", "agent": "content_drafting", "task": "Posts"},
+        {"reasoning": "a", "action": "delegate", "assignments": [{"agent": "competitor_research", "task": "Research X"}]},
+        {"reasoning": "b", "action": "delegate", "assignments": [{"agent": "content_drafting", "task": "Posts"}]},
         {"reasoning": "c", "action": "finish"},
     ], synth=RuntimeError("synth down"))
     assert "Could not combine" in steps[-1].detail
     assert "competitor_research did: Research X" in steps[-1].detail and "content_drafting did: Posts" in steps[-1].detail
+
+
+def test_independent_tasks_run_in_parallel_in_one_round(wire):
+    """Two specialists in one round: both start before either finishes, and the next round sees both."""
+    import threading, time
+    started, overlap = [], threading.Event()
+
+    def agent(name):
+        def node(state):
+            started.append(name)
+            if len(started) == 2:
+                overlap.set()
+            assert overlap.wait(2), f"{name} ran alone: the round was not parallel"
+            time.sleep(0.05)  # slow on purpose: parallelism only shows if the calls overlap
+            return {"messages": [AIMessage(f"{name.upper()} OUTPUT")]}
+        g = StateGraph(MessagesState)
+        g.add_node("model", node)
+        g.add_edge(START, "model")
+        g.add_edge("model", END)
+        return g.compile()
+
+    agents = {"trend_monitoring": agent("trend_monitoring"), "competitor_research": agent("competitor_research")}
+    steps, router = wire([
+        {"reasoning": "independent", "action": "delegate", "assignments": [
+            {"agent": "trend_monitoring", "task": "Mentions of A"},
+            {"agent": "competitor_research", "task": "Research B"}]},
+        {"reasoning": "done", "action": "finish"},
+    ], agents=agents)
+
+    assert sorted(started) == ["competitor_research", "trend_monitoring"]
+    routes = [s for s in steps if s.kind == "route" and s.data.get("agent")]
+    assert [r.data["parallel"] for r in routes] == [2, 2] and {r.data["round"] for r in routes} == {1}
+    second_round_input = router["r"].prompts[1][1].content
+    assert "TREND_MONITORING OUTPUT" in second_round_input and "COMPETITOR_RESEARCH OUTPUT" in second_round_input
+    assert steps[-1].detail == "SYNTHESISED"
+
+
+def test_same_specialist_twice_in_one_round(wire):
+    steps, router = wire([
+        {"reasoning": "two brands", "action": "delegate", "assignments": [
+            {"agent": "trend_monitoring", "task": "Mentions of A"},
+            {"agent": "trend_monitoring", "task": "Mentions of B"}]},
+        {"reasoning": "done", "action": "finish"},
+    ])
+    assert "Mentions of A" in router["synth_input"] and "Mentions of B" in router["synth_input"]
+
+
+def test_parallel_round_is_capped_by_step_limit(wire):
+    app = load_config()
+    many = [{"agent": "trend_monitoring", "task": f"t{i}"} for i in range(app.supervisor.max_steps + 3)]
+    steps, _ = wire([{"reasoning": "lots", "action": "delegate", "assignments": many},
+                     {"reasoning": "done", "action": "finish"}])
+    assert sum(s.kind == "route" and bool(s.data.get("agent")) for s in steps) == app.supervisor.max_steps

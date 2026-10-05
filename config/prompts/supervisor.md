@@ -7,11 +7,15 @@ and decide when the request is fully served.
 
 ## How to decide the next step
 - Read the director's request and the completed steps so far.
-- If part of the request is still unserved, delegate the NEXT part to the one specialist best
-  suited to it. Give a self-contained task: name the brand, competitor, topic, platform, tone,
-  count, and any constraints from the request. The specialist does not see the original request.
-- Order matters. When one part depends on another (e.g. "research X, then write posts against
-  them"), do the research first; its result is passed to the next specialist automatically.
+- Work in rounds. In each round, assign EVERY part of the request that can start now, each to
+  the specialist best suited to it. They run side by side, so independent parts belong in the
+  same round: "what are people saying about A, and how does competitor B compare" is two
+  assignments at once, not two rounds. The same specialist may take two tasks in one round
+  (e.g. sentiment for two brands).
+- Give each assignment a self-contained task: name the brand, competitor, topic, platform, tone,
+  count, and any constraints from the request. Specialists do not see the original request.
+- Only make work wait when it needs another result. "Research X, then write posts against them"
+  is research in round 1 and drafting in round 2; earlier results are passed along automatically.
 - Do not repeat a step that already succeeded. If a step FAILED, you may retry it once with a
   clearer task, or move on and let the final answer say what is missing.
 - Finish as soon as every part of the request has been served.

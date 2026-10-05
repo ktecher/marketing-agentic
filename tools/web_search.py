@@ -1,6 +1,8 @@
 """web_search — free default: DuckDuckGo via `ddgs` (no key). Paid swaps: tavily, brave."""
 
 import os
+import threading
+import time
 from typing import Literal
 
 import httpx
@@ -10,6 +12,13 @@ from tools.registry import register_tool
 
 Recency = Literal["any", "day", "week", "month", "year"]
 _AD_URLS = ("bing.com/aclick", "duckduckgo.com/y.js")  # sponsored results ddgs passes through
+
+# ddgs scrapes public search pages, and the engines refuse bursts: agents batch several searches
+# into one step, which ran 6 at once and failed ~25% of them (measured). Queue them instead and
+# retry a refusal after a pause.
+# ponytail: per-process limit; several app replicas on one IP would need a shared limiter.
+_DDGS_SLOTS = threading.Semaphore(2)
+_DDGS_ATTEMPTS = 3
 
 
 class SearchArgs(BaseModel):
@@ -31,6 +40,23 @@ def _format(results: list[dict]) -> str:
 
 
 def _ddgs(query: str, kind: str, recency: Recency, n: int) -> list[dict]:
+    from ddgs.exceptions import DDGSException
+
+    for attempt in range(1, _DDGS_ATTEMPTS + 1):
+        try:
+            with _DDGS_SLOTS:
+                return _ddgs_once(query, kind, recency, n)
+        except DDGSException as e:
+            if attempt == _DDGS_ATTEMPTS:
+                raise RuntimeError(
+                    f"free search engines returned nothing after {attempt} tries ({e}). "
+                    "They may be throttling; try a broader query, or switch on sample data mode."
+                ) from e
+            time.sleep(1.5 * attempt)
+    return []
+
+
+def _ddgs_once(query: str, kind: str, recency: Recency, n: int) -> list[dict]:
     from ddgs import DDGS
 
     kwargs = {"max_results": n}

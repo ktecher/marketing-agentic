@@ -151,3 +151,41 @@ def test_scrapling_escalates_to_browser_when_blocked(monkeypatch):
         read_page._scrapling("https://site.example", {"browser": False})
     with pytest.raises(RuntimeError, match="HTTP 403"):
         read_page._scrapling("https://site.example", {"browser": "false"})  # as it arrives from READER_BROWSER
+
+
+def test_ddgs_retries_refusals_then_reports_clearly(monkeypatch):
+    from ddgs.exceptions import DDGSException
+    monkeypatch.setattr(web_search.time, "sleep", lambda s: None)
+    calls = []
+
+    def flaky(*a):
+        calls.append(1)
+        if len(calls) < 3:
+            raise DDGSException("No results found.")
+        return [{"title": "T", "url": "https://u.example"}]
+
+    monkeypatch.setattr(web_search, "_ddgs_once", flaky)
+    assert web_search._ddgs("q", "web", "any", 5)[0]["title"] == "T" and len(calls) == 3
+
+    monkeypatch.setattr(web_search, "_ddgs_once", lambda *a: (_ for _ in ()).throw(DDGSException("No results found.")))
+    with pytest.raises(RuntimeError, match="after 3 tries"):
+        web_search._ddgs("q", "web", "any", 5)
+
+
+def test_ddgs_never_runs_more_than_two_at_once(monkeypatch):
+    import threading as th
+    from concurrent.futures import ThreadPoolExecutor
+    live, peak, lock = [0], [0], th.Lock()
+
+    def slow(*a):
+        with lock:
+            live[0] += 1; peak[0] = max(peak[0], live[0])
+        import time; time.sleep(0.05)  # slow on purpose: concurrency only shows if calls overlap
+        with lock:
+            live[0] -= 1
+        return []
+
+    monkeypatch.setattr(web_search, "_ddgs_once", slow)
+    with ThreadPoolExecutor(6) as ex:
+        list(ex.map(lambda _: web_search._ddgs("q", "web", "any", 5), range(6)))
+    assert peak[0] == 2

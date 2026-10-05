@@ -16,7 +16,7 @@ end of each phase.
 | `config/prompts/*.md` | One system prompt per agent, plus `supervisor.md` (routing, `{agents}` placeholder) and `synthesis.md` |
 | `core/config.py` | Loads YAML, expands `${VAR:-default}` from env/.env, validates with pydantic |
 | `core/models.py` | `get_model(spec)` for every provider, incl. `ClaudeCodeChat` |
-| `core/supervisor.py` | Supervisor graph: `route` → one node per enabled agent → `route` … → `finish`; `run(app, request)` yields trace Steps |
+| `core/supervisor.py` | Supervisor graph in rounds: `route` → specialists of this round IN PARALLEL (LangGraph `Send`) → `route` … → `finish`. Dependent work waits a round and gets earlier outputs as context. State keys written by parallel nodes (`results`, `trace`) need reducers. `run(app, request)` yields trace Steps |
 | `core/trace.py` | `Step` + `stream_steps`: turns LangGraph stream updates into the trace (CLI and UI share it) |
 | `tools/registry.py` | `@register_tool`, `build_tools(names, settings)` with error wrapping + mock-mode switch |
 | `tools/web_search.py`, `tools/read_page.py` | Free defaults (ddgs, scrapling with stealth-browser fallback) + paid swaps; `read_page` refuses non-public addresses |

@@ -1,9 +1,11 @@
-"""Supervisor: routes a director's request to specialists, one step at a time, then answers.
+"""Supervisor: hands a director's request to specialists in rounds, then answers.
 
-Graph:  route ──► <agent node> ──► route ──► ... ──► finish
-         └──────────────────────────────────────────►┘
+Graph:  route ──► <agent nodes, in parallel> ──► route ──► ... ──► finish
+         └──────────────────────────────────────────────────────►┘
 
-- `route` asks the LLM for a structured Decision (delegate to an agent with a task, or finish).
+- `route` asks the LLM for a structured Decision: the specialists to run NOW (independent tasks
+  run side by side), or finish. Work that depends on another result waits for the next round,
+  where it receives the earlier outputs as context.
   The agent list and descriptions come from the registry + agents.yaml, never from this file.
 - Each enabled agent is its own node, named after the agent, so the trace can attribute every
   tool call to the right specialist (LangGraph namespaces subgraph events by node name).
@@ -16,6 +18,7 @@ from typing import Annotated, Iterator, Literal, TypedDict
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.errors import GraphRecursionError
 from langgraph.graph import END, START, StateGraph
+from langgraph.types import Send
 from pydantic import BaseModel, Field, create_model
 
 from agents.base import recursion_limit
@@ -28,19 +31,27 @@ from core.trace import Step, stream_steps
 class State(TypedDict, total=False):
     request: str
     results: Annotated[list[dict], operator.add]  # [{agent, task, output, ok}]
-    next: dict | None                             # {agent, task} chosen by route
+    assignments: list[dict]                       # [{agent, task}] chosen by route for this round
+    assignment: dict                              # the one task a runner received (via Send)
+    round: int
     reply: str                                    # direct reply when no agent is needed
     final: str
-    trace: list[Step]
+    trace: Annotated[list[Step], operator.add]   # parallel specialists append in the same step
 
 
 def _decision_model(agent_names: list[str]) -> type[BaseModel]:
+    assignment = create_model(
+        "Assignment",
+        agent=(Literal[tuple(agent_names)], Field(description="specialist to run")),
+        task=(str, Field(description="Self-contained instruction for that specialist")),
+    )
     return create_model(
         "Decision",
-        reasoning=(str, Field(description="One or two sentences: why this next step (shown to the user).")),
-        action=(Literal["delegate", "finish"], Field(description="delegate to a specialist, or finish")),
-        agent=(Literal[tuple(agent_names)] | None, Field(None, description="specialist to delegate to")),
-        task=(str, Field("", description="Self-contained instruction for that specialist")),
+        reasoning=(str, Field(description="One or two sentences: why these next steps (shown to the user).")),
+        action=(Literal["delegate", "finish"], Field(description="delegate this round's work, or finish")),
+        assignments=(list[assignment], Field(default_factory=list, description=(
+            "Specialists to run NOW, side by side. Include every task that does not need another "
+            "task's result; tasks that depend on a result go in a later round."))),
         reply=(str, Field("", description="Only when finishing with NO specialist used: the reply to the user")),
     )
 
@@ -75,30 +86,35 @@ def build_supervisor(app: AppConfig):
 
     def route(state: State) -> State:
         done = state.get("results", [])
+        rnd = state.get("round", 0) + 1
         if len(done) >= cfg.max_steps:
-            return {"next": None, "trace": [Step("route", "supervisor", f"Step limit ({cfg.max_steps}) reached — finishing")]}
+            return {"assignments": [], "trace": [Step("route", "supervisor", f"Step limit ({cfg.max_steps}) reached — finishing")]}
         try:
             d = decide.invoke([
                 SystemMessage(route_prompt),
                 HumanMessage(f"## Director's request\n{state['request']}\n\n## Completed steps\n{_results_block(done)}"),
             ])
         except Exception as e:  # keep what the specialists already produced
-            return {"next": None, "reply": f"Routing failed ({type(e).__name__}: {e}).",
+            return {"assignments": [], "reply": f"Routing failed ({type(e).__name__}: {e}).",
                     "trace": [Step("error", "supervisor", "Routing failed — finishing with what we have", str(e))]}
-        if d.action == "delegate" and d.agent:
+        work = [{"agent": a.agent, "task": a.task or state["request"]} for a in d.assignments]
+        work = work[: cfg.max_steps - len(done)]
+        if d.action == "delegate" and work:
+            both = " in parallel" if len(work) > 1 else ""
             return {
-                "next": {"agent": d.agent, "task": d.task or state["request"]},
-                "trace": [Step("route", "supervisor", f"Delegating to {d.agent}: {d.task}", d.reasoning,
-                               data={"agent": d.agent, "task": d.task, "reasoning": d.reasoning})],
+                "assignments": work, "round": rnd,
+                "trace": [Step("route", "supervisor", f"Delegating to {w['agent']}{both}: {w['task']}", d.reasoning,
+                               data={**w, "reasoning": d.reasoning, "round": rnd, "parallel": len(work)})
+                          for w in work],
             }
-        return {"next": None, "reply": d.reply,
+        return {"assignments": [], "reply": d.reply,
                 "trace": [Step("route", "supervisor", "Ready to answer", d.reasoning, data={"reasoning": d.reasoning})]}
 
     def make_runner(name: str):
         graph = agents[name].with_config(recursion_limit=recursion_limit(app.agents[name]))
 
         def run(state: State) -> State:
-            task = state["next"]["task"]
+            task = state["assignment"]["task"]
             prompt = task
             if state.get("results"):
                 prompt += "\n\n## Context from previous steps (use it; don't re-research it)\n" + _results_block(state["results"])
@@ -142,7 +158,17 @@ def build_supervisor(app: AppConfig):
         g.add_node(n, make_runner(n))
         g.add_edge(n, "route")
     g.add_edge(START, "route")
-    g.add_conditional_edges("route", lambda s: s["next"]["agent"] if s.get("next") else "finish", [*names, "finish"])
+
+    def dispatch(state: State):
+        work = state.get("assignments") or []
+        if not work:
+            return "finish"
+        # Send runs each assignment as its own branch in the same step: the specialists work in
+        # parallel, and route runs again once all of them have finished.
+        return [Send(w["agent"], {"request": state["request"], "results": state.get("results", []), "assignment": w})
+                for w in work]
+
+    g.add_conditional_edges("route", dispatch, [*names, "finish"])
     g.add_edge("finish", END)
     return g.compile()
 

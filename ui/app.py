@@ -98,35 +98,34 @@ def css() -> str:
 
 
 def team_status(steps: list[Step], running: bool) -> dict[str, str]:
-    """idle | active | done | failed for each team member, from the steps so far."""
+    """idle | active | done | failed for each team member, from the steps so far.
+    Specialists in the same round work in parallel, so several can be active at once (and one
+    specialist can hold two tasks): count open tasks per agent instead of tracking one."""
     status = {a: "idle" for a in TEAM}
+    open_tasks = {a: 0 for a in TEAM}
     if running:
         status["supervisor"] = "active"
 
-    def set_(a, v):
-        if a in status:
-            status[a] = v
+    def refresh_supervisor():
+        busy = any(open_tasks[a] for a in TEAM if a != "supervisor")
+        status["supervisor"] = "idle" if busy else "active"
 
     for s in steps:
         if s.kind == "route":
-            for a, v in status.items():
-                if v == "active" and a != "supervisor":
-                    status[a] = "done"
             target = s.data.get("agent")
-            set_("supervisor", "idle" if target else "active")
-            if target:
-                set_(target, "active")
-        elif s.kind == "agent_answer" and s.agent != "supervisor":
-            set_(s.agent, "done")
-            set_("supervisor", "active")
-        elif s.kind == "error":
-            set_(s.agent, "failed")
-            if s.agent == "supervisor":
-                for a, v in status.items():
-                    if v == "active" and a != "supervisor":
-                        status[a] = "idle"
-            else:
-                set_("supervisor", "active")
+            if target in status:
+                open_tasks[target] += 1
+                status[target] = "active"
+            refresh_supervisor()
+        elif s.kind in ("agent_answer", "error") and s.agent in status and s.agent != "supervisor":
+            open_tasks[s.agent] = max(0, open_tasks[s.agent] - 1)
+            if s.kind == "error":
+                status[s.agent] = "failed"
+            elif not open_tasks[s.agent] and status[s.agent] != "failed":
+                status[s.agent] = "done"
+            refresh_supervisor()
+        elif s.kind == "error":  # supervisor-level failure
+            status["supervisor"] = "failed"
         elif s.kind == "final":
             status = {a: ("done" if v == "active" else v) for a, v in status.items()}
             status["supervisor"] = "done"

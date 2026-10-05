@@ -3,8 +3,10 @@
 ## What it is
 
 A multi-agent demo for a marketing agency. A marketing director types a request. A supervisor
-decides which specialist should handle it: competitor research, content drafting or trend
-monitoring. It runs them one step at a time and returns one answer. The UI shows the
+splits it among three specialists: competitor research, content drafting and trend
+monitoring. Each specialist is its own agent with its own tools and reason-act-observe loop.
+Independent parts run in parallel; a part that needs another's result (posts based on research)
+waits for it. The supervisor then returns one answer. The UI shows the
 supervisor's reasoning and every tool call as it happens. The system produces drafts and reports
 only; it never publishes anything.
 
