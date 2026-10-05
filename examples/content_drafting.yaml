@@ -1,0 +1,22 @@
+# Example requests for the content_drafting agent.
+#   uv run python cli.py agent content_drafting "<request>" [--mock]
+# Mock examples use the fictional client Aurelle Skin (data/mock/).
+
+- request: Write 3 Instagram captions for Aurelle Skin launching the Barrier Reset Serum, warm and expert tone
+  mock: true
+  note: Core demo. Expect ingredients, price and the 81% (n=48) stat from the product page, 5-10 hashtags, and the mock-mode line.
+
+- request: Write a LinkedIn post on skinimalism for Aurelle Skin
+  mock: true
+  note: Count and tone are missing, so the "Defaults used" line should show count = 3 and the default tone.
+
+- request: >-
+    Context from previous steps: competitor Kiraleaf has recurring customer complaints about slow
+    shipping and has just launched a new SPF line. Draft 2 LinkedIn posts positioning Aurelle Skin
+    against them, confident professional tone.
+  mock: true
+  note: Hand-off from competitor_research. It should search only Aurelle (not Kiraleaf) and contrast on Aurelle's 1-3 day GCC shipping without attacking Kiraleaf by name.
+
+- request: Draft 3 X posts for Patagonia about the Worn Wear program, upbeat and practical tone
+  mock: false
+  note: Live, real brand. Each post must be 280 characters or fewer and grounded in wornwear.patagonia.com. If DuckDuckGo rate-limits, it should still draft and flag that grounding was limited.

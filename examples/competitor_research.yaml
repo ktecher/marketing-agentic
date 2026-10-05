@@ -1,0 +1,14 @@
+# Example requests for the competitor_research agent.
+# Run: uv run python cli.py agent competitor_research "<request>" [--mock]
+- request: "Research our competitor Kiraleaf"
+  mock: true
+  note: Fictional competitor in the mock brand world; answers come from data/mock fixtures.
+- request: "Research Nuvéa Labs (nuvealabs.example)"
+  mock: true
+  note: Fictional competitor given by name and URL; the agent should also read the URL.
+- request: "Research Kiraleaf. Our client is Aurelle (aurelle.example); what should we do about them this quarter?"
+  mock: true
+  note: Client context makes "Opportunities for us" specific.
+- request: "Research Mailchimp"
+  mock: false
+  note: Real company, live web (DuckDuckGo + trafilatura). May be slowed by search rate limits.

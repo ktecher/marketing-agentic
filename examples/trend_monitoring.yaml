@@ -1,0 +1,13 @@
+# Example requests for trend_monitoring. mock: true runs on the fictional sample world (data/mock/).
+- request: What are people saying about Aurelle Skin this month?
+  mock: true
+  note: Brand sentiment over forum posts, reviews and a sentiment tracker; the pump complaint should surface as a watch-out.
+- request: What's trending in skin-barrier skincare?
+  mock: true
+  note: Topic scan; expect barrier/fragrance-free language, skinimalism and SPF serums as rising themes.
+- request: What's trending in skinimalism and SPF serums?
+  mock: true
+  note: Two-topic scan; competitor issues (Kiraleaf delivery, Nuvéa pricing) appear as category signals.
+- request: What are people saying about Duolingo's marketing this month?
+  mock: false
+  note: Live web and news via DuckDuckGo; coverage varies and rate limits should be reported in the coverage line.

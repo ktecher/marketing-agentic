@@ -1,9 +1,40 @@
-# Supervisor + specialists. The supervisor routes using each agent's `description`.
-# Add an agent: module in agents/, a block here, a prompt in config/prompts/. See CLAUDE.md.
+# Supervisor + specialists. The supervisor routes using each agent's `description`, so write it
+# as "send me requests like...". Add an agent: module in agents/, a block here, a prompt in
+# config/prompts/. See CLAUDE.md. Optional per-agent `model:` overrides settings.llm.
 
 supervisor:
   prompt: prompts/supervisor.md
+  synthesis_prompt: prompts/synthesis.md   # combines several specialists' outputs
   max_steps: 6
-  # model: { provider: anthropic, model: claude-sonnet-5-5 }   # optional override
+  # model: { provider: anthropic, model: claude-sonnet-5-5 }
 
-agents: {}   # filled in phases 3-5
+agents:
+  competitor_research:
+    enabled: true
+    description: >-
+      Researches one competitor (by name or URL) on the web and writes an intelligence report:
+      offering, positioning, pricing signals, recent activity, strengths and weaknesses, with sources.
+      Use for "research / analyse / tell me about competitor X".
+    prompt: prompts/competitor_research.md
+    tools: [web_search, read_page, current_date]
+    max_iterations: 10
+
+  content_drafting:
+    enabled: true
+    description: >-
+      Drafts marketing content (social posts, captions, ad and short web copy) for a brand, topic
+      and platform in a requested tone, with several variations. Researches briefly for grounding.
+      Can position the brand against competitor findings handed to it. Drafts only; never publishes.
+    prompt: prompts/content_drafting.md
+    tools: [web_search, read_page]
+    max_iterations: 6
+
+  trend_monitoring:
+    enabled: true
+    description: >-
+      Scans the web and news for recent mentions and discussion of a brand or topic and summarises
+      overall sentiment, recurring themes and notable trends, with sources. Use for "what are people
+      saying about X", "what's trending in Y", brand-mention and sentiment checks.
+    prompt: prompts/trend_monitoring.md
+    tools: [web_search, read_page, current_date]
+    max_iterations: 10
