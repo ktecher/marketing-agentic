@@ -11,7 +11,7 @@ def build_react_agent(name: str, cfg: AgentConfig, app: AppConfig):
     return create_agent(
         get_model(app.model_for(cfg.model)),
         build_tools(cfg.tools, app.settings),
-        system_prompt=app.prompt_text(cfg.prompt),
+        system_prompt=app.prompt_text(cfg.prompt) + "\n\n" + app.market_brief(),
         name=name,
     )
 

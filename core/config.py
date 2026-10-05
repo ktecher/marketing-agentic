@@ -32,10 +32,22 @@ class ModelSpec(BaseModel):
         return v or None
 
 
+class Market(BaseModel):
+    """Where the director works. Localises search results and is briefed to every agent."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    country: str = "Kuwait"
+    code: str = "kw"          # ISO 3166 alpha-2, lower case: search engines' country filter
+    currency: str = "KWD"
+    prompt: str = "prompts/market.md"
+
+
 class Settings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     mock_mode: bool = False
+    market: Market = Field(default_factory=Market)
     llm: ModelSpec
     tools: dict[str, dict[str, Any]] = Field(default_factory=dict)
     # API keys typed in the UI for one browser session, by env var name (e.g. SERPER_API_KEY).
@@ -74,6 +86,11 @@ class AppConfig(BaseModel):
 
     def prompt_text(self, rel_path: str) -> str:
         return (self.config_dir / rel_path).read_text(encoding="utf-8")
+
+    def market_brief(self) -> str:
+        """The market context every agent and the supervisor receive, filled from settings.market."""
+        m = self.settings.market
+        return self.prompt_text(m.prompt).format(country=m.country, currency=m.currency)
 
     @property
     def enabled_agents(self) -> dict[str, AgentConfig]:

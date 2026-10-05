@@ -81,8 +81,9 @@ def build_supervisor(app: AppConfig):
     model = get_model(app.model_for(cfg.model))
     decide = model.with_structured_output(_decision_model(names))
     roster = "\n".join(f"- **{n}**: {app.agents[n].description}" for n in names)
-    route_prompt = app.prompt_text(cfg.prompt).replace("{agents}", roster)
-    synth_prompt = app.prompt_text(cfg.synthesis_prompt)
+    market = app.market_brief()
+    route_prompt = app.prompt_text(cfg.prompt).replace("{agents}", roster) + "\n\n" + market
+    synth_prompt = app.prompt_text(cfg.synthesis_prompt) + "\n\n" + market
 
     def route(state: State) -> State:
         done = state.get("results", [])

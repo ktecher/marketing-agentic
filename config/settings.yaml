@@ -4,6 +4,14 @@
 # The LLM still runs. Toggle per run with MOCK_MODE=true or the UI switch.
 mock_mode: ${MOCK_MODE:-false}
 
+# Where the director works. Search results are localised to this country (Google via Serper,
+# Tavily, Brave; the free Bing/Yahoo scraping ignores it), and every agent gets the brief in
+# config/prompts/market.md. For another market, change these and that file.
+market:
+  country: ${MARKET_COUNTRY:-Kuwait}
+  code: ${MARKET_CODE:-kw}
+  currency: ${MARKET_CURRENCY:-KWD}
+
 # Default LLM for every agent. Override per agent in agents.yaml.
 llm:
   provider: ${LLM_PROVIDER:-claude_code}   # claude_code | anthropic | openai | ollama | openai_compatible

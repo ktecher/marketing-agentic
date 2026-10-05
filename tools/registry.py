@@ -67,7 +67,7 @@ def secret(name: str, options: dict | None = None) -> str | None:
 
 
 def _wrap(tool: ToolDef, settings: Settings) -> Callable[..., str]:
-    options = {**settings.tools.get(tool.name, {}), "_secrets": settings.secrets}
+    options = {**settings.tools.get(tool.name, {}), "_secrets": settings.secrets, "_market": settings.market}
 
     def run(**kwargs) -> str:
         try:

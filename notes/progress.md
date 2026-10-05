@@ -54,3 +54,10 @@ with no code edits (44s); Docker image healthy, Ollama ping + tool call from ins
 
 Next ideas: Arabic variations (language is already a prompt parameter in content_drafting);
 `anthropic` provider for client deployments (much faster than claude_code).
+
+## 2026-10-05 — Audience: Kuwait / GCC
+Audience is marketing directors in the Middle East, mainly Kuwait. Added `settings.market`
+(Kuwait / kw / KWD) and `config/prompts/market.md`. Measured: Serper gl=kw and Tavily
+country=kuwait turn 'Fold 8 price' from samsung.com/CNBC into Xcite, Best, Switch, Trikart; the
+free ddgs engines ignore region. Live competitor report quoted KWD 449.900 from Samsung Kuwait and
+Zain Kuwait bundles. Arabic output + RTL UI are the planned next step.

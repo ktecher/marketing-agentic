@@ -82,6 +82,8 @@ def _ddgs_once(query: str, kind: str, recency: Recency, n: int, backend: str = "
 
 def _tavily(query: str, kind: str, recency: Recency, n: int, options: dict | None = None, **_) -> list[dict]:
     body = {"query": query, "max_results": n, "topic": "news" if kind == "news" else "general"}
+    if market := (options or {}).get("_market"):
+        body["country"] = market.country.lower()  # e.g. "kuwait": local retailers and press first
     if recency != "any":
         body["time_range"] = recency
     r = httpx.post(
@@ -100,6 +102,8 @@ def _tavily(query: str, kind: str, recency: Recency, n: int, options: dict | Non
 def _brave(query: str, kind: str, recency: Recency, n: int, options: dict | None = None, **_) -> list[dict]:
     endpoint = "news" if kind == "news" else "web"
     params = {"q": query, "count": n}
+    if market := (options or {}).get("_market"):
+        params["country"] = market.code.upper()
     if recency != "any":
         params["freshness"] = {"day": "pd", "week": "pw", "month": "pm", "year": "py"}[recency]
     r = httpx.get(
@@ -120,6 +124,8 @@ def _brave(query: str, kind: str, recency: Recency, n: int, options: dict | None
 def _serper(query: str, kind: str, recency: Recency, n: int, options: dict | None = None, **_) -> list[dict]:
     """Google results via Serper (serper.dev): 2,500 free searches, then prepaid credits."""
     body = {"q": query, "num": n}
+    if market := (options or {}).get("_market"):
+        body["gl"] = market.code  # Google's country: "kw" ranks Xcite, Best, Switch over samsung.com
     if recency != "any":
         body["tbs"] = f"qdr:{recency[0]}"  # d / w / m / y
     r = httpx.post(

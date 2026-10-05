@@ -317,3 +317,37 @@ def test_ui_save_can_be_switched_off(monkeypatch):
     assert ui_can_save()
     monkeypatch.setenv("ALLOW_UI_SAVE", "false")
     assert not ui_can_save()
+
+
+def test_every_agent_and_the_supervisor_get_the_market_brief(monkeypatch):
+    from agents import base
+    from agents.registry import build_enabled_agents
+    from core import supervisor
+    app = load_config()
+    app.settings.market.country, app.settings.market.currency = "Kuwait", "KWD"
+    brief = app.market_brief()
+    assert "based in Kuwait" in brief and "in KWD" in brief and "{" not in brief
+
+    seen = {}
+    monkeypatch.setattr(base, "create_agent", lambda model, tools, system_prompt, name: seen.setdefault(name, system_prompt))
+    monkeypatch.setattr(base, "get_model", lambda spec: None)
+    build_enabled_agents(app)
+    assert set(seen) == set(app.enabled_agents) and all(brief in p for p in seen.values())
+
+    routed = []
+
+    class Router:
+        def __init__(self, schema): self.schema = schema
+        def invoke(self, messages):
+            routed.append(messages[0].content)
+            return self.schema(reasoning="hi", action="finish", reply="Hello")
+
+    class Model:
+        def with_structured_output(self, schema): return Router(schema)
+
+    monkeypatch.setattr(supervisor, "get_model", lambda spec: Model())
+    class Agent:
+        def with_config(self, **kw): return self
+    monkeypatch.setattr(supervisor, "build_enabled_agents", lambda app: {n: Agent() for n in app.enabled_agents})
+    steps = list(supervisor.run(app, "hi"))
+    assert steps[-1].kind == "final" and routed and brief in routed[0]

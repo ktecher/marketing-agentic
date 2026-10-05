@@ -296,3 +296,21 @@ def test_session_key_wins_and_never_leaks(monkeypatch):
     [plain] = build_tools(["web_search"], _settings(tools={"web_search": {"provider": "serper"}}))
     plain.invoke({"query": "x"})
     assert sent[-1] == "server-key"  # no session key: falls back to .env
+
+
+def test_paid_search_is_localised_to_the_market(monkeypatch):
+    from core.config import Market
+    sent = []
+
+    class Resp:
+        def raise_for_status(self): pass
+        def json(self): return {"organic": [], "results": []}
+
+    monkeypatch.setattr(web_search.httpx, "post", lambda url, json, headers, timeout: sent.append(json) or Resp())
+    monkeypatch.setenv("SERPER_API_KEY", "k"); monkeypatch.setenv("TAVILY_API_KEY", "k")
+    settings = _settings(tools={"web_search": {"provider": "serper,tavily"}})
+    settings.market = Market(country="Kuwait", code="kw", currency="KWD")
+    [tool] = build_tools(["web_search"], settings)
+    tool.invoke({"query": "Fold 8 price"})
+    by_api = {("gl" in b and "serper") or "tavily": b for b in sent}
+    assert by_api["serper"]["gl"] == "kw" and by_api["tavily"]["country"] == "kuwait"

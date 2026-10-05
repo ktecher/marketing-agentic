@@ -13,6 +13,7 @@ end of each phase.
 |---|---|
 | `config/settings.yaml` | Global: `mock_mode`, default `llm`, per-tool provider options |
 | `config/agents.yaml` | Supervisor + specialists: enabled, description, model, tools, prompt |
+| `config/prompts/market.md` | Market brief (default Kuwait/GCC: local sources, KWD, platforms, calendar, norms) appended to EVERY agent's and the supervisor's prompt; `settings.market` also localises Serper (`gl`), Tavily (`country`), Brave |
 | `config/prompts/*.md` | One system prompt per agent, plus `supervisor.md` (routing, `{agents}` placeholder) and `synthesis.md` |
 | `core/config.py` | Loads YAML, expands `${VAR:-default}` from env/.env, validates with pydantic |
 | `core/models.py` | `get_model(spec)` for every provider, incl. `ClaudeCodeChat` |
