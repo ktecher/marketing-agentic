@@ -175,3 +175,121 @@ def test_reimport_after_partial_failure_keeps_real_error(monkeypatch, tmp_path):
             sys.modules.pop("tools.half_broken", None)
     finally:
         tool_registry._TOOLS.pop("_half", None)
+
+
+def test_session_api_key_beats_env_and_is_never_dumped(monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "env-key")
+    spec = ModelSpec(provider="anthropic", model="claude-sonnet-5-5", api_key="ui-session-key")
+    model = models.get_model(spec)
+    assert model.anthropic_api_key.get_secret_value() == "ui-session-key"
+    assert "ui-session-key" not in spec.model_dump_json() and "api_key" not in spec.model_dump()
+    monkeypatch.delenv("ANTHROPIC_API_KEY")
+    assert models.get_model(spec)  # works with no env key at all
+
+
+def test_native_tool_attempt_is_recovered_not_dropped(monkeypatch):
+    """Model calls web_search natively (CLI says 'No such tool'), then returns no tool_calls."""
+    events = [
+        {"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "current_date", "input": {}}]}},
+        {"type": "user", "message": {"content": [{"type": "tool_result", "content": "No such tool available: current_date"}]}},
+        {"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "StructuredOutput", "input": {}}]}},
+        {"type": "result", "is_error": False, "num_turns": 3,
+         "structured_output": {"content": "Tools failed, so here is my answer anyway", "tool_calls": []}},
+    ]
+
+    class Proc:
+        stdout, stderr, returncode = "\n".join(json.dumps(e) for e in events), "", 0
+
+    monkeypatch.setattr(subprocess, "run", lambda cmd, **kw: Proc())
+    tools = tool_registry.build_tools(["current_date"], Settings(llm={"provider": "claude_code", "model": "sonnet"}))
+    reply = models.ClaudeCodeChat().bind_tools(tools).invoke("date?")
+    assert [c["name"] for c in reply.tool_calls] == ["current_date"]  # StructuredOutput itself is not a bound tool
+
+
+def test_stub_content_is_replaced_by_the_answer_written_outside_structured_output(monkeypatch):
+    report = "# Kiraleaf report\n" + "Detailed finding. " * 30
+    events = [
+        {"type": "assistant", "message": {"content": [{"type": "text", "text": report}]}},
+        {"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "StructuredOutput", "input": {}}]}},
+        {"type": "result", "is_error": False, "structured_output": {"content": "done", "tool_calls": []}},
+    ]
+
+    class Proc:
+        stdout, stderr, returncode = "\n".join(json.dumps(e) for e in events), "", 0
+
+    monkeypatch.setattr(subprocess, "run", lambda cmd, **kw: Proc())
+    tools = tool_registry.build_tools(["current_date"], Settings(llm={"provider": "claude_code", "model": "sonnet"}))
+    assert models.ClaudeCodeChat().bind_tools(tools).invoke("x").content == report
+    # A real answer in content is kept even when other text exists.
+    assert models._recover_answer("A" * 400, events) == "A" * 400
+
+
+def _stream(*events, extra_lines=()):
+    class Proc:
+        stdout = "\n".join([*extra_lines, *(json.dumps(e) for e in events)])
+        stderr, returncode = "", 0
+    return Proc()
+
+
+def _tool(name, args=None):
+    return {"type": "assistant", "message": {"content": [{"type": "tool_use", "name": name, "input": args or {}}]}}
+
+
+def _text(t):
+    return {"type": "assistant", "message": {"content": [{"type": "text", "text": t}]}}
+
+
+def _bound():
+    return tool_registry.build_tools(["current_date"], Settings(llm={"provider": "claude_code", "model": "sonnet"}))
+
+
+def test_finished_answer_is_not_pushed_back_into_tool_calls(monkeypatch):
+    answer = "Full report. " * 60
+    monkeypatch.setattr(subprocess, "run", lambda cmd, **kw: _stream(
+        _tool("current_date"), _tool("StructuredOutput"),
+        {"type": "result", "structured_output": {"content": answer, "tool_calls": []}}))
+    reply = models.ClaudeCodeChat().bind_tools(_bound()).invoke("x")
+    assert reply.tool_calls == [] and reply.content == answer
+
+
+def test_native_attempts_are_deduped_and_skip_calls_already_run(monkeypatch):
+    monkeypatch.setattr(subprocess, "run", lambda cmd, **kw: _stream(
+        _tool("current_date"), _tool("current_date"),
+        {"type": "result", "structured_output": {"content": "", "tool_calls": []}}))
+    model = models.ClaudeCodeChat().bind_tools(_bound())
+    assert len(model.invoke("x").tool_calls) == 1
+    history = [HumanMessage("x"), AIMessage("", tool_calls=[{"name": "current_date", "args": {}, "id": "c1"}]),
+               ToolMessage("2026-10-05", tool_call_id="c1", name="current_date")]
+    assert model.invoke(history).tool_calls == []  # habitual re-call of an executed call is ignored
+
+
+def test_preamble_is_never_taken_as_the_answer():
+    preamble = "I searched several sources and will now summarise the findings in detail. " * 6
+    events = [_text(preamble), _tool("web_search"), _tool("StructuredOutput")]
+    assert models._recover_answer("No mentions of Kiraleaf in the past week.", events) == "No mentions of Kiraleaf in the past week."
+
+
+def test_stream_tolerates_warnings_and_requires_a_result(monkeypatch):
+    monkeypatch.setattr(subprocess, "run", lambda cmd, **kw: _stream(
+        {"type": "result", "result": "pong"}, extra_lines=["Warning: something", ""]))
+    assert models.ClaudeCodeChat().invoke("x").content == "pong"
+    monkeypatch.setattr(subprocess, "run", lambda cmd, **kw: _stream(_text("partial")))
+    with pytest.raises(RuntimeError, match="claude_code exit"):
+        models.ClaudeCodeChat().invoke("x")
+
+
+def test_server_key_never_goes_to_a_visitor_supplied_url(monkeypatch):
+    monkeypatch.setenv("LLM_API_KEY", "server-secret")
+    monkeypatch.setenv("LLM_BASE_URL", "https://api.groq.example/openai/v1")
+    with pytest.raises(models.ModelConfigError, match="needs its own API key"):
+        models.get_model(ModelSpec(provider="openai_compatible", model="m", base_url="https://attacker.example/v1"))
+    ok = models.get_model(ModelSpec(provider="openai_compatible", model="m", base_url="https://api.groq.example/openai/v1/"))
+    assert ok.openai_api_key.get_secret_value() == "server-secret"
+    import socket
+    # Fake DNS: IP literals resolve to themselves, names to a public address.
+    monkeypatch.setattr(socket, "getaddrinfo", lambda host, *a, **k: [
+        (None, None, None, None, (host if host[0].isdigit() else "93.184.216.34", 0))])
+    mine = models.get_model(ModelSpec(provider="openai_compatible", model="m", base_url="https://mine.example/v1", api_key="visitor-key"))
+    assert mine.openai_api_key.get_secret_value() == "visitor-key"
+    with pytest.raises(models.ModelConfigError, match="base URL refused"):
+        models.get_model(ModelSpec(provider="openai_compatible", model="m", base_url="http://169.254.169.254/v1", api_key="k"))

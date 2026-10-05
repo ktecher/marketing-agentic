@@ -24,8 +24,8 @@ class ModelConfigError(RuntimeError):
     """A provider is selected but its key or URL is missing."""
 
 
-def _require_env(name: str, provider: str) -> str:
-    value = os.environ.get(name)
+def _require_env(name: str, provider: str, spec: ModelSpec | None = None) -> str:
+    value = (spec.api_key.get_secret_value() if spec and spec.api_key else None) or os.environ.get(name)
     if not value:
         raise ModelConfigError(
             f"provider '{provider}' needs {name}. Add it to .env, or set LLM_PROVIDER=claude_code."
@@ -42,11 +42,11 @@ def get_model(spec: ModelSpec) -> BaseChatModel:
         kwargs["temperature"] = spec.temperature
 
     if spec.provider == "anthropic":
-        _require_env("ANTHROPIC_API_KEY", spec.provider)
-        return init_chat_model(spec.model, model_provider="anthropic", **kwargs)
+        key = _require_env("ANTHROPIC_API_KEY", spec.provider, spec)
+        return init_chat_model(spec.model, model_provider="anthropic", api_key=key, **kwargs)
     if spec.provider == "openai":
-        _require_env("OPENAI_API_KEY", spec.provider)
-        return init_chat_model(spec.model, model_provider="openai", **kwargs)
+        key = _require_env("OPENAI_API_KEY", spec.provider, spec)
+        return init_chat_model(spec.model, model_provider="openai", api_key=key, **kwargs)
     if spec.provider == "ollama":
         base_url = spec.base_url or os.environ.get("OLLAMA_BASE_URL")
         if base_url:
@@ -55,7 +55,18 @@ def get_model(spec: ModelSpec) -> BaseChatModel:
     if spec.provider == "openai_compatible":
         if not spec.base_url:
             raise ModelConfigError("provider 'openai_compatible' needs LLM_BASE_URL (or base_url in config).")
-        api_key = _require_env("LLM_API_KEY", spec.provider)
+        if spec.base_url.rstrip("/") != os.environ.get("LLM_BASE_URL", "").rstrip("/"):
+            # A UI visitor typed this endpoint: never send it the server's LLM_API_KEY, and never
+            # let it point the server at its own network.
+            if not spec.api_key:
+                raise ModelConfigError("a custom base URL needs its own API key (the server key only goes to LLM_BASE_URL).")
+            from tools.read_page import _check_public
+
+            try:
+                _check_public(spec.base_url)
+            except (ValueError, OSError) as e:
+                raise ModelConfigError(f"base URL refused: {e}") from e
+        api_key = _require_env("LLM_API_KEY", spec.provider, spec)
         return init_chat_model(
             spec.model, model_provider="openai", base_url=spec.base_url, api_key=api_key, **kwargs
         )
@@ -72,10 +83,13 @@ def get_model(spec: ModelSpec) -> BaseChatModel:
 _TOOL_INSTRUCTIONS = """
 
 ## Tools
-You may call the tools described in the response schema. To call tools, list them in
-`tool_calls` (you may call several at once) and put a one-line note on what you are doing in
-`content`. You will then receive the results. When you have everything you need, return an
-empty `tool_calls` list and put your complete final answer in `content`."""
+The tools named in this prompt ({names}) are NOT directly callable here: calling them as tools
+fails with "No such tool". Your only callable tool is StructuredOutput. To use a tool, call
+StructuredOutput once with that tool listed in `tool_calls` (several at once is fine) and a
+one-line note on what you are doing in `content`. Stop there: the results arrive in the next
+message. When you have everything you need, call StructuredOutput with an empty `tool_calls`
+list and your COMPLETE final answer in `content`. Text written outside StructuredOutput is
+discarded, so never put the answer anywhere else or refer to it ("see above", "done")."""
 
 
 def _text(message: BaseMessage) -> str:
@@ -137,6 +151,59 @@ def _tool_call_schema(tools: list[dict], tool_choice: str | None) -> dict:
     }
 
 
+_STUB_CHARS = 300  # a `content` shorter than this, with no tool calls, is not a finished answer
+
+
+def _blocks(events: list[dict]) -> list[dict]:
+    return [
+        b for e in events if e.get("type") == "assistant"
+        for b in e.get("message", {}).get("content", []) if isinstance(b, dict)
+    ]
+
+
+def _call_key(name: str, args: dict) -> tuple[str, str]:
+    return name, json.dumps(args, sort_keys=True)
+
+
+def _native_attempts(events: list[dict], bound: set[str], already_run: set[tuple[str, str]]) -> list[dict]:
+    """Bound tools the model tried to call natively in this CLI run, minus repeats of calls the
+    agent already executed (habitual re-calls), deduplicated."""
+    calls, seen = [], set(already_run)
+    for b in _blocks(events):
+        if b.get("type") == "tool_use" and b.get("name") in bound:
+            key = _call_key(b["name"], b.get("input") or {})
+            if key not in seen:
+                seen.add(key)
+                calls.append({"name": b["name"], "args": b.get("input") or {}})
+    return calls
+
+
+def _recover_answer(content: str, events: list[dict]) -> str:
+    """The model sometimes writes the final answer as plain text and puts a stub ("done",
+    "report delivered above") in `content`. Only text written after its last real tool attempt
+    counts, so an opening preamble is never mistaken for the answer."""
+    if len(content.strip()) >= _STUB_CHARS:
+        return content
+    blocks = _blocks(events)
+    last_tool = max((i for i, b in enumerate(blocks) if b.get("type") == "tool_use" and b.get("name") != "StructuredOutput"), default=-1)
+    texts = [b.get("text", "") for b in blocks[last_tool + 1:] if b.get("type") == "text"]
+    longest = max(texts, key=len, default="")
+    return longest if len(longest.strip()) >= _STUB_CHARS else content
+
+
+def _parse_stream(stdout: str) -> tuple[list[dict], dict]:
+    events = []
+    for line in stdout.splitlines():
+        try:
+            events.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue  # the CLI may print warnings between events
+    results = [e for e in events if isinstance(e, dict) and e.get("type", "result") == "result"]
+    if not results:
+        raise ValueError("no result event")
+    return events, results[-1]
+
+
 class ClaudeCodeChat(BaseChatModel):
     model: str = "sonnet"
     timeout: int = 300
@@ -169,7 +236,7 @@ class ClaudeCodeChat(BaseChatModel):
         cmd = [
             self.cli, "-p",
             "--model", self.model,
-            "--output-format", "json",
+            "--output-format", "stream-json", "--verbose",  # event stream: lets us see native tool attempts
             # Isolation: no user settings/hooks/plugins, no skills, no MCP, no built-in tools.
             "--setting-sources", "",
             "--disable-slash-commands",
@@ -178,7 +245,7 @@ class ClaudeCodeChat(BaseChatModel):
             "--no-session-persistence",
         ]
         if tools:
-            system += _TOOL_INSTRUCTIONS
+            system += _TOOL_INSTRUCTIONS.format(names=", ".join(t["function"]["name"] for t in tools))
             cmd += ["--json-schema", json.dumps(_tool_call_schema(tools, tool_choice))]
         cmd += ["--system-prompt", system]
 
@@ -202,8 +269,8 @@ class ClaudeCodeChat(BaseChatModel):
             raise RuntimeError(f"claude_code timed out after {self.timeout}s") from e
 
         try:
-            data = json.loads(proc.stdout)
-        except json.JSONDecodeError as e:
+            events, data = _parse_stream(proc.stdout)
+        except ValueError as e:
             detail = (proc.stderr or proc.stdout).strip()[:500]
             raise RuntimeError(f"claude_code exit {proc.returncode}: {detail}") from e
         if data.get("is_error"):
@@ -216,14 +283,22 @@ class ClaudeCodeChat(BaseChatModel):
                 raise RuntimeError(
                     f"claude_code returned no structured output ({data.get('subtype')}): {str(data.get('result'))[:300]}"
                 )
+            calls = out.get("tool_calls") or []
+            content = _recover_answer(out.get("content", ""), events) if not calls else out.get("content", "")
+            if not calls and len(content.strip()) < _STUB_CHARS:
+                # The model sometimes calls a bound tool NATIVELY (fails inside the CLI with
+                # "No such tool") and then returns no tool calls and no real answer. Its intent was
+                # the tool call. A substantial answer means it genuinely finished: leave it alone.
+                already_run = {_call_key(c["name"], c["args"]) for m in messages if isinstance(m, AIMessage) for c in m.tool_calls}
+                calls = _native_attempts(events, {t["function"]["name"] for t in tools}, already_run)
             message = AIMessage(
-                content=out.get("content", ""),
+                content=content,
                 tool_calls=[
                     {"name": c["name"], "args": c.get("args") or {}, "id": f"call_{uuid.uuid4().hex[:12]}", "type": "tool_call"}
-                    for c in out.get("tool_calls", [])
+                    for c in calls
                 ],
             )
         else:
             message = AIMessage(content=data.get("result") or "")
-        message.response_metadata = {"model": self.model, "duration_ms": data.get("duration_ms")}
+        message.response_metadata = {"model": self.model, "duration_ms": data.get("duration_ms"), "num_turns": data.get("num_turns")}
         return ChatResult(generations=[ChatGeneration(message=message)])

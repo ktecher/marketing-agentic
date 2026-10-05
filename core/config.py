@@ -8,7 +8,7 @@ from typing import Any, Literal
 
 import yaml
 from dotenv import load_dotenv
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG_DIR = ROOT / "config"
@@ -23,6 +23,8 @@ class ModelSpec(BaseModel):
     model: str
     base_url: str | None = None
     temperature: float | None = None
+    # Set only by the UI for one browser session; never put a key in YAML (use .env).
+    api_key: SecretStr | None = Field(None, exclude=True)
 
     @field_validator("base_url", mode="before")
     @classmethod
@@ -42,6 +44,7 @@ class SupervisorConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     prompt: str
+    synthesis_prompt: str = "prompts/synthesis.md"
     max_steps: int = 6
     model: ModelSpec | None = None
 
