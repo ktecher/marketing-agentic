@@ -30,6 +30,7 @@ from core.trace import Step, stream_steps
 
 class State(TypedDict, total=False):
     request: str
+    history: str                                  # earlier briefs + answers in this conversation
     results: Annotated[list[dict], operator.add]  # [{agent, task, output, ok}]
     assignments: list[dict]                       # [{agent, task}] chosen by route for this round
     assignment: dict                              # the one task a runner received (via Send)
@@ -52,7 +53,9 @@ def _decision_model(agent_names: list[str]) -> type[BaseModel]:
         assignments=(list[assignment], Field(default_factory=list, description=(
             "Specialists to run NOW, side by side. Include every task that does not need another "
             "task's result; tasks that depend on a result go in a later round."))),
-        reply=(str, Field("", description="Only when finishing with NO specialist used: the reply to the user")),
+        reply=(str, Field("", description=(
+            "Only when finishing with NO specialist used this turn: the full reply to the director. "
+            "May answer from earlier answers in the conversation."))),
     )
 
 
@@ -63,6 +66,24 @@ def _results_block(results: list[dict]) -> str:
         f"### Step {i}: {r['agent']} ({'ok' if r['ok'] else 'FAILED'})\nTask: {r['task']}\n\n{r['output']}"
         for i, r in enumerate(results, 1)
     )
+
+
+_HISTORY_CHARS = 6000  # per earlier answer; ponytail: truncation, summarise if long threads matter
+
+
+def _history_block(history: list[dict] | None) -> str:
+    """Earlier turns of this conversation, oldest first, for follow-up questions."""
+    if not history:
+        return ""
+    turns = []
+    for i, h in enumerate(history, 1):
+        answer = h["answer"] if len(h["answer"]) <= _HISTORY_CHARS else h["answer"][:_HISTORY_CHARS] + "\n[…truncated]"
+        turns.append(f"### Earlier brief {i}\n{h['request']}\n\n#### Answer given\n{answer}")
+    return "\n\n".join(turns)
+
+
+def _with_history(text: str, hist: str, label: str) -> str:
+    return f"## Earlier in this conversation ({label})\n{hist}\n\n{text}" if hist else text
 
 
 def _last_ai_text(messages) -> str:
@@ -93,7 +114,9 @@ def build_supervisor(app: AppConfig):
         try:
             d = decide.invoke([
                 SystemMessage(route_prompt),
-                HumanMessage(f"## Director's request\n{state['request']}\n\n## Completed steps\n{_results_block(done)}"),
+                HumanMessage(_with_history(
+                    f"## Director's request (now)\n{state['request']}\n\n## Completed steps this turn\n{_results_block(done)}",
+                    state.get("history", ""), "the director may be following up on it")),
             ])
         except Exception as e:  # keep what the specialists already produced
             return {"assignments": [], "reply": f"Routing failed ({type(e).__name__}: {e}).",
@@ -117,6 +140,8 @@ def build_supervisor(app: AppConfig):
         def run(state: State) -> State:
             task = state["assignment"]["task"]
             prompt = task
+            if state.get("history"):
+                prompt += "\n\n## Earlier in this conversation (build on it; don't re-research what's here)\n" + state["history"]
             if state.get("results"):
                 prompt += "\n\n## Context from previous steps (use it; don't re-research it)\n" + _results_block(state["results"])
             try:
@@ -145,7 +170,9 @@ def build_supervisor(app: AppConfig):
             try:
                 final = model.invoke([
                     SystemMessage(synth_prompt),
-                    HumanMessage(f"## Director's request\n{state['request']}\n\n## Specialist outputs\n{_results_block(results)}"),
+                    HumanMessage(_with_history(
+                        f"## Director's request (now)\n{state['request']}\n\n## Specialist outputs\n{_results_block(results)}",
+                        state.get("history", ""), "for reference; answer the request made now")),
                 ]).content
             except Exception as e:  # never lose finished work to a failed summary
                 final = f"_Could not combine the results ({type(e).__name__}); here they are as delivered._\n\n" + \
@@ -166,7 +193,8 @@ def build_supervisor(app: AppConfig):
             return "finish"
         # Send runs each assignment as its own branch in the same step: the specialists work in
         # parallel, and route runs again once all of them have finished.
-        return [Send(w["agent"], {"request": state["request"], "results": state.get("results", []), "assignment": w})
+        return [Send(w["agent"], {"request": state["request"], "history": state.get("history", ""),
+                                  "results": state.get("results", []), "assignment": w})
                 for w in work]
 
     g.add_conditional_edges("route", dispatch, [*names, "finish"])
@@ -174,11 +202,12 @@ def build_supervisor(app: AppConfig):
     return g.compile()
 
 
-def run(app: AppConfig, request: str, graph=None) -> Iterator[Step]:
-    """Stream the trace for one request. The last Step has kind 'final' (or 'error')."""
+def run(app: AppConfig, request: str, graph=None, history: list[dict] | None = None) -> Iterator[Step]:
+    """Stream the trace for one request. The last Step has kind 'final' (or 'error').
+    `history` is the earlier turns of the conversation, [{request, answer}], for follow-ups."""
     try:
         graph = graph or build_supervisor(app)  # inside try: a missing key/URL becomes an error Step
-        yield from stream_steps(graph, {"request": request, "results": []},
+        yield from stream_steps(graph, {"request": request, "results": [], "history": _history_block(history)},
                                 {"recursion_limit": app.supervisor.max_steps * 2 + 4},
                                 default_agent="supervisor")
     except Exception as e:

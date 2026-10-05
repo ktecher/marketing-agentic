@@ -81,6 +81,15 @@ Ready-made requests, with notes on what to expect, are in `examples/`:
 
 Entries marked `mock: true` use the fictional sample data; run them with `--mock`.
 
+## Follow-up questions
+
+After an answer, type a follow-up in the box at the bottom ("which retailer was cheapest?",
+"rewrite caption 2 for Snapchat", "same for the Pixel Fold"). The supervisor sees the earlier
+briefs and answers: if they already cover the question it replies directly in seconds; otherwise
+it sends specialists with the earlier findings, so nothing is researched twice. Earlier turns stay
+on the page, folded. **New brief** starts a fresh conversation. Each earlier answer passed along is
+capped at 6,000 characters.
+
 ## Settings in the UI
 
 Click **Settings** in the sidebar to open the settings pop-up. Everything below can be chosen there, without editing files:

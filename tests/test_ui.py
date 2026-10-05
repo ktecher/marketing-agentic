@@ -252,3 +252,28 @@ def test_view_switch_keeps_the_answer(app_test):
     assert not at.exception
     assert all("Three posts for Aurelle Skin" in "\n".join(m.value for m in t.markdown) for t in at.tabs)
     assert len(at.calls) == 1
+
+
+def test_follow_up_sends_the_earlier_answer_as_history(monkeypatch):
+    calls = []
+
+    def fake_run(app, request, graph=None, history=None):
+        calls.append((request, history))
+        yield Step("final", "supervisor", "Final answer", f"ANSWER TO: {request}")
+
+    monkeypatch.setattr(supervisor, "run", fake_run)
+    at = AppTest.from_file(APP, default_timeout=30).run()
+    at.text_area(key="request").input("fold 8")
+    at.button(key="brief").click().run()
+    assert not at.exception
+    assert at.chat_input(key="followup") is not None  # offered right after the first answer
+
+    at.chat_input(key="followup").set_value("which retailer was cheapest?").run()
+    assert not at.exception
+    assert calls[0] == ("fold 8", None)
+    assert calls[1] == ("which retailer was cheapest?", [{"request": "fold 8", "answer": "ANSWER TO: fold 8"}])
+    assert "ANSWER TO: which retailer was cheapest?" in _markdown(at)
+    assert any("Brief 1: fold 8" in e.label for e in at.expander)  # the earlier turn stays on the page
+
+    at.button(key="new_brief").click().run()
+    assert at.session_state["thread"] == [] and not [c for c in at.chat_input]

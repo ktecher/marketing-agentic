@@ -230,3 +230,69 @@ def test_parallel_round_is_capped_by_step_limit(wire):
     steps, _ = wire([{"reasoning": "lots", "action": "delegate", "assignments": many},
                      {"reasoning": "done", "action": "finish"}])
     assert sum(s.kind == "route" and bool(s.data.get("agent")) for s in steps) == app.supervisor.max_steps
+
+
+def test_follow_up_sees_earlier_turns_and_can_answer_directly(wire, monkeypatch):
+    """A follow-up answered from earlier results: no specialist runs, the router saw the history."""
+    from core import supervisor as sup
+    app = load_config()
+    seen = {}
+
+    class Router:
+        def __init__(self, schema): self.schema = schema
+        def invoke(self, messages):
+            seen["prompt"] = messages[1].content
+            return self.schema(reasoning="already covered", action="finish", reply="Xcite was cheapest (KWD 449.900).")
+
+    class Model:
+        def with_structured_output(self, schema): return Router(schema)
+
+    ran = []
+    monkeypatch.setattr(sup, "get_model", lambda spec: Model())
+    monkeypatch.setattr(sup, "build_enabled_agents", lambda app: {n: _fake_agent(n) for n in app.enabled_agents})
+    history = [{"request": "fold 8", "answer": "Xcite lists it at KWD 449.900; Best at KWD 459."}]
+    steps = list(sup.run(app, "which retailer was cheapest?", history=history))
+    assert steps[-1].detail == "Xcite was cheapest (KWD 449.900)."
+    assert not [s for s in steps if s.kind == "agent_answer"]
+    assert "Earlier brief 1\nfold 8" in seen["prompt"] and "KWD 449.900" in seen["prompt"]
+    assert seen["prompt"].index("Earlier brief") < seen["prompt"].index("which retailer was cheapest?")
+
+
+def test_follow_up_specialist_receives_earlier_findings(wire):
+    seen = {}
+
+    def content(state):
+        seen["prompt"] = state["messages"][-1].content
+        return {"messages": [AIMessage("Snapchat versions")]}
+
+    g = StateGraph(MessagesState)
+    g.add_node("model", content)
+    g.add_edge(START, "model")
+    g.add_edge("model", END)
+    from core import supervisor as sup
+    app = load_config()
+    decisions = [{"reasoning": "new drafts", "action": "delegate",
+                  "assignments": [{"agent": "content_drafting", "task": "Rewrite the 3 posts for Snapchat"}]},
+                 {"reasoning": "done", "action": "finish"}]
+
+    class Model:
+        def with_structured_output(self, schema): return ScriptedRouter(schema, decisions)
+        def invoke(self, m): return AIMessage("unused")
+
+    import pytest
+    mp = pytest.MonkeyPatch()
+    try:
+        mp.setattr(sup, "get_model", lambda spec: Model())
+        mp.setattr(sup, "build_enabled_agents", lambda app: {"content_drafting": g.compile()})
+        steps = list(sup.run(app, "make those posts for Snapchat",
+                             history=[{"request": "3 Instagram posts for Aurelle", "answer": "POST ONE / POST TWO / POST THREE"}]))
+    finally:
+        mp.undo()
+    assert steps[-1].detail == "Snapchat versions"
+    assert "POST ONE / POST TWO / POST THREE" in seen["prompt"] and seen["prompt"].startswith("Rewrite the 3 posts for Snapchat")
+
+
+def test_history_is_truncated_per_answer():
+    from core.supervisor import _HISTORY_CHARS, _history_block
+    block = _history_block([{"request": "r", "answer": "x" * (_HISTORY_CHARS + 500)}])
+    assert block.count("x") == _HISTORY_CHARS and block.endswith("[…truncated]")

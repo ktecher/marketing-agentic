@@ -487,11 +487,11 @@ def views():
     return st.tabs(["Network", "Timeline"], key="view", default="Network")
 
 
-def safe_steps(app, request: str):
+def safe_steps(app, request: str, history: list[dict] | None = None):
     """The live run, with every failure turned into an error Step so the page never crashes."""
     ended = False
     try:
-        for step in supervisor.run(app, request):
+        for step in supervisor.run(app, request, history=history) if history else supervisor.run(app, request):
             ended = ended or step.kind == "final"
             yield step
     except Exception as e:  # e.g. ModelConfigError while building the agents
@@ -693,20 +693,53 @@ if clicked and not request.strip():
     st.warning("Write a brief first, or pick one of the examples below.")
     clicked = False
 
-if clicked:
+def make_app():
     app = load_config()
     app.settings.mock_mode = mock
     app.settings.llm = choices["spec"]
     app.settings.secrets = choices["secrets"]  # session-only; never os.environ
     app.settings.tools.setdefault("web_search", {})["provider"] = ",".join(choices["search"])
     app.settings.tools.setdefault("read_page", {})["provider"] = choices["reader"]
+    return app
+
+
+def final_text(turn: dict) -> str:
+    return next((s.detail for s, _ in reversed(turn["timed"]) if s.kind == "final"), "")
+
+
+def run_turn(text: str) -> None:
+    """Run one brief or follow-up live, with the earlier turns as context, and keep it."""
+    thread = st.session_state.setdefault("thread", [])
+    history = [{"request": t["request"], "answer": final_text(t)} for t in thread if final_text(t)]
     timed: list[tuple[Step, float]] = []
-    st.session_state["result"] = None
-    show_run(request.strip(), timed, strip, live_iter=safe_steps(app, request.strip()))
-    st.session_state["result"] = {"request": request.strip(), "timed": timed}
-elif st.session_state.get("result"):
-    r = st.session_state["result"]
-    show_run(r["request"], r["timed"], strip)
+    show_run(text, timed, strip, live_iter=safe_steps(make_app(), text, history))
+    thread.append({"request": text, "timed": timed})
+
+
+def new_brief() -> None:
+    st.session_state["thread"] = []
+    st.session_state["request"] = ""
+
+
+thread = st.session_state.setdefault("thread", [])
+followup = st.chat_input("Ask a follow-up about these results", key="followup") if thread else None
+
+if clicked:
+    st.session_state["thread"] = thread = []  # a new brief starts a new conversation
+    run_turn(request.strip())
+    st.rerun()  # redraw as a conversation, so the follow-up box appears straight away
+elif thread:
+    for n, turn in enumerate(thread[:-1] if not followup else thread, 1):
+        with st.expander(f"Brief {n}: {preview(turn['request'], 90)}", expanded=False):
+            st.markdown(final_text(turn) or "_No answer this time._")
+    if followup and followup.strip():
+        st.html(f'<p class="followup-q"><strong>Follow-up:</strong> {esc(followup.strip())}</p>')
+        run_turn(followup.strip())
+    else:
+        last = thread[-1]
+        show_run(last["request"], last["timed"], strip)
+    st.button("New brief", key="new_brief", on_click=new_brief, icon=":material/restart_alt:",
+              help="Start over: the next brief won't see this conversation.")
 else:
     strip.html(strip_html(team_status([], running=False)))
     network, timeline = views()
