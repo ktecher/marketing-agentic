@@ -52,7 +52,7 @@ def test_read_page_refuses_non_public_targets(monkeypatch, ip):
 
 def test_read_page_allows_public_and_truncates(monkeypatch):
     monkeypatch.setattr(socket, "getaddrinfo", lambda *a, **k: [(None, None, None, None, ("93.184.216.34", 0))])
-    monkeypatch.setitem(read_page.PROVIDERS, "trafilatura", lambda url: "x" * 50)
+    monkeypatch.setitem(read_page.PROVIDERS, "scrapling", lambda url, options: "x" * 50)
     out = read_page.read_page("https://site.example", options={"max_chars": 10})
     assert out.startswith("x" * 10) and "[truncated at 10 of 50 chars]" in out
 
@@ -82,6 +82,7 @@ def test_mock_mode_never_touches_network(fixtures, monkeypatch):
 
     monkeypatch.setitem(web_search.PROVIDERS, "ddgs", boom)
     monkeypatch.setitem(read_page.PROVIDERS, "trafilatura", boom)
+    monkeypatch.setitem(read_page.PROVIDERS, "scrapling", boom)
     search, page = build_tools(["web_search", "read_page"], _settings(mock_mode=True))
 
     assert "Kira pricing" in search.invoke({"query": "Kiraleaf pricing plans"})
@@ -103,3 +104,50 @@ def test_live_search_and_read():
     search, page = build_tools(["web_search", "read_page"], _settings(tools={"web_search": {"provider": "ddgs"}}))
     assert "http" in search.invoke({"query": "content marketing"})
     assert len(page.invoke({"url": "https://en.wikipedia.org/wiki/Content_marketing"})) > 500
+
+
+def test_scrapling_checks_every_redirect_hop(monkeypatch):
+    """A public URL that redirects to an internal one must be refused before it is fetched."""
+    import scrapling.fetchers as sf
+
+    class R:
+        def __init__(self, status, headers, html=""):
+            self.status, self.headers, self.html_content = status, headers, html
+
+    fetched = []
+
+    def fake_get(url, **kw):
+        fetched.append(url)
+        return R(302, {"location": "http://169.254.169.254/latest/meta-data"})
+
+    monkeypatch.setattr(sf.Fetcher, "get", staticmethod(fake_get))
+    monkeypatch.setattr(socket, "getaddrinfo", lambda host, *a, **k: [
+        (None, None, None, None, (host if host[0].isdigit() else "93.184.216.34", 0))])
+    with pytest.raises(ValueError, match="non-public"):
+        read_page._scrapling("https://innocent.example/go", {})
+    assert fetched == ["https://innocent.example/go"]  # the internal hop was never requested
+
+
+def test_scrapling_escalates_to_browser_when_blocked(monkeypatch):
+    import scrapling.fetchers as sf
+
+    class R:
+        def __init__(self, status, html):
+            self.status, self.headers, self.html_content = status, {}, html
+        def get_all_text(self, **kw):
+            return "rendered text " * 50
+
+    monkeypatch.setattr(sf.Fetcher, "get", staticmethod(lambda url, **kw: R(403, "<html>blocked</html>")))
+    used = {}
+
+    def fake_browser(url, **kw):
+        used["guard"] = kw.get("page_setup")
+        return R(200, "<html><body></body></html>")
+
+    monkeypatch.setattr(sf.StealthyFetcher, "fetch", staticmethod(fake_browser))
+    assert "rendered text" in read_page._scrapling("https://site.example", {})
+    assert callable(used["guard"])  # browser requests go through the public-address guard
+    with pytest.raises(RuntimeError, match="HTTP 403"):
+        read_page._scrapling("https://site.example", {"browser": False})
+    with pytest.raises(RuntimeError, match="HTTP 403"):
+        read_page._scrapling("https://site.example", {"browser": "false"})  # as it arrives from READER_BROWSER

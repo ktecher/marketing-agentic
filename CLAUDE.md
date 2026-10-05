@@ -19,7 +19,7 @@ end of each phase.
 | `core/supervisor.py` | Supervisor graph: `route` → one node per enabled agent → `route` … → `finish`; `run(app, request)` yields trace Steps |
 | `core/trace.py` | `Step` + `stream_steps`: turns LangGraph stream updates into the trace (CLI and UI share it) |
 | `tools/registry.py` | `@register_tool`, `build_tools(names, settings)` with error wrapping + mock-mode switch |
-| `tools/web_search.py`, `tools/read_page.py` | Free defaults (ddgs, trafilatura) + paid swaps; `read_page` refuses non-public addresses |
+| `tools/web_search.py`, `tools/read_page.py` | Free defaults (ddgs, scrapling with stealth-browser fallback) + paid swaps; `read_page` refuses non-public addresses |
 | `tools/mock.py`, `data/mock/` | Mock mode: fixture answers labelled `[mock data]`; fictional brand world (see `data/mock/README.md`) |
 | `agents/registry.py` | `@register_agent`, `build_agent`, `build_enabled_agents` |
 | `agents/base.py` | `build_react_agent` — shared ReAct loop (`langchain.agents.create_agent`) |

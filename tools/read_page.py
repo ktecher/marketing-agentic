@@ -1,9 +1,11 @@
-"""read_page — free default: trafilatura (local extraction, no key). Swaps: jina (free tier), firecrawl (paid)."""
+"""read_page — free default: scrapling (browser-grade fetch, stealth browser for blocked or
+JavaScript pages). Other options: trafilatura (plain HTTP), jina (free tier), firecrawl (paid)."""
 
 import ipaddress
 import os
 import socket
-from urllib.parse import urlparse
+from functools import lru_cache
+from urllib.parse import urljoin, urlparse
 
 import httpx
 from pydantic import BaseModel, Field
@@ -43,7 +45,62 @@ def _with_embedded_v4(ip) -> list:
     return found
 
 
-def _trafilatura(url: str) -> str:
+def _extract(html: str, url: str) -> str | None:
+    import trafilatura
+
+    return trafilatura.extract(html, url=url, include_tables=True, with_metadata=True)
+
+
+@lru_cache(maxsize=256)
+def _host_is_public(url: str) -> bool:
+    try:
+        _check_public(url)
+        return True
+    except (ValueError, OSError):
+        return False
+
+
+def _scrapling(url: str, options: dict) -> str:
+    """Fast path: curl_cffi impersonating Chrome (beats most bot checks, no browser needed).
+    Escalates to Scrapling's stealth browser when the page is blocked or renders client-side."""
+    from scrapling.fetchers import Fetcher
+
+    # Follow redirects by hand so every hop passes the public-address check.
+    status, html, final = 0, "", url
+    for _ in range(6):
+        r = Fetcher.get(final, impersonate="chrome", stealthy_headers=True, follow_redirects=False, timeout=20)
+        location = r.headers.get("location") or r.headers.get("Location")
+        if 300 <= r.status < 400 and location:
+            final = urljoin(final, location)
+            _check_public(final)
+            continue
+        status, html = r.status, r.html_content or ""
+        break
+    text = _extract(html, final) if status < 400 else None
+    if text and len(text) >= 400:
+        return text
+    if str(options.get("browser", True)).strip().lower() in ("false", "0", "no", "off"):  # env values arrive as strings
+        raise RuntimeError(f"HTTP {status}; page blocked or needs JavaScript (enable read_page.browser)")
+
+    from scrapling.fetchers import StealthyFetcher
+
+    def guard(page):
+        # Every request the browser makes (redirects, JS navigation, sub-resources) must be public.
+        page.route("**/*", lambda route: route.continue_() if _host_is_public(route.request.url) else route.abort())
+
+    try:
+        page = StealthyFetcher.fetch(final, headless=True, network_idle=True, timeout=45000, page_setup=guard)
+    except Exception as e:  # e.g. browsers not installed (`uv run scrapling install`)
+        raise RuntimeError(f"HTTP {status} on fast fetch; browser fallback failed: {type(e).__name__}: {e}") from e
+    if page.status >= 400:
+        raise RuntimeError(f"HTTP {page.status}: the site blocks automated readers")
+    text = _extract(page.html_content or "", final) or " ".join(str(page.get_all_text(ignore_tags=("script", "style"))).split())
+    if not text:
+        raise RuntimeError("page rendered but had no readable text")
+    return text
+
+
+def _trafilatura(url: str, options: dict) -> str:
     import trafilatura
 
     # The hook re-checks every redirect hop, not just the first URL.
@@ -57,13 +114,13 @@ def _trafilatura(url: str) -> str:
                 if len(body) >= _MAX_BYTES:
                     break
             html = bytes(body).decode(r.encoding or "utf-8", errors="replace")
-    text = trafilatura.extract(html, url=url, include_tables=True, with_metadata=True)
+    text = _extract(html, url)
     if not text:
-        raise RuntimeError("no readable main text (page may need JavaScript; try provider: jina)")
+        raise RuntimeError("no readable main text (page may need JavaScript; try provider: scrapling)")
     return text
 
 
-def _jina(url: str) -> str:
+def _jina(url: str, options: dict) -> str:
     headers = {"Accept": "text/plain"}
     if key := os.environ.get("JINA_API_KEY"):
         headers["Authorization"] = f"Bearer {key}"
@@ -72,7 +129,7 @@ def _jina(url: str) -> str:
     return r.text
 
 
-def _firecrawl(url: str) -> str:
+def _firecrawl(url: str, options: dict) -> str:
     key = os.environ.get("FIRECRAWL_API_KEY")
     if not key:
         raise RuntimeError("FIRECRAWL_API_KEY is not set. Add it to .env or use provider: trafilatura")
@@ -86,7 +143,7 @@ def _firecrawl(url: str) -> str:
     return r.json()["data"]["markdown"]
 
 
-PROVIDERS = {"trafilatura": _trafilatura, "jina": _jina, "firecrawl": _firecrawl}
+PROVIDERS = {"scrapling": _scrapling, "trafilatura": _trafilatura, "jina": _jina, "firecrawl": _firecrawl}
 
 
 @register_tool(
@@ -96,9 +153,9 @@ PROVIDERS = {"trafilatura": _trafilatura, "jina": _jina, "firecrawl": _firecrawl
 )
 def read_page(url: str, *, options: dict) -> str:
     _check_public(url)
-    provider = options.get("provider", "trafilatura")
+    provider = options.get("provider", "scrapling")
     if provider not in PROVIDERS:
         raise ValueError(f"unknown read_page provider '{provider}'; choose from {sorted(PROVIDERS)}")
-    text = PROVIDERS[provider](url).strip()
+    text = PROVIDERS[provider](url, options).strip()
     limit = int(options.get("max_chars", 8000))
     return text if len(text) <= limit else text[:limit] + f"\n\n[truncated at {limit} of {len(text)} chars]"

@@ -13,6 +13,7 @@ dependencies = [
     "pydantic>=2.13.5",
     "python-dotenv>=1.2.4",
     "pyyaml>=6.0.3",
+    "scrapling[fetchers]>=0.4.15",
     "streamlit>=1.65.0",
     "trafilatura>=2.3.0",
 ]

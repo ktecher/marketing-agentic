@@ -20,7 +20,7 @@ only; it never publishes anything.
         +--------+---------+---------+---------+
                  |                   |
             web_search           read_page          current_date
-        (ddgs/tavily/brave) (trafilatura/jina/firecrawl)
+        (ddgs/tavily/brave) (scrapling/trafilatura/jina/firecrawl)
 ```
 
 Built on Python 3.13, LangGraph/LangChain 1.x and Streamlit, managed with `uv`.
@@ -31,6 +31,7 @@ Requirements: Python 3.13 and [uv](https://docs.astral.sh/uv/).
 
 ```bash
 uv sync
+uv run scrapling install   # one-time: browser for the page reader's stealth mode
 cp .env.example .env
 uv run streamlit run ui/app.py
 ```
@@ -138,7 +139,7 @@ Each specialist uses tools listed in `config/agents.yaml`. The defaults need no 
 | Tool | What it does | Providers |
 |---|---|---|
 | `web_search` | Web and news search | `ddgs` (default, free), `tavily` (`TAVILY_API_KEY`), `brave` (`BRAVE_API_KEY`) |
-| `read_page` | Returns a page's main text | `trafilatura` (default, free, local), `jina` (free tier), `firecrawl` (`FIRECRAWL_API_KEY`) |
+| `read_page` | Returns a page's main text | `scrapling` (default, free, local; stealth browser for blocked or JavaScript pages), `trafilatura` (free, plain HTTP), `jina` (free tier), `firecrawl` (`FIRECRAWL_API_KEY`) |
 | `current_date` | Today's date (UTC), to judge how recent a source is | none |
 
 Swap a provider in `config/settings.yaml`:
@@ -165,8 +166,12 @@ Trade-offs:
 
 - DuckDuckGo (`ddgs`) is free but can rate-limit. If it does, switch on sample data mode or use
   `tavily`.
-- `trafilatura` reads pages locally and cannot render JavaScript. On script-heavy pages it can
-  fail with "no readable main text"; try `jina`.
+- `scrapling` first fetches with a real-browser fingerprint (about 1s). Only if the page is
+  blocked or renders client-side (e.g. TikTok profiles) does it open its stealth browser (about
+  10s). The browser needs a one-time `uv run scrapling install`; set `READER_BROWSER=false` to
+  skip it. Sites behind enterprise bot protection (Forbes, for example) still refuse every free
+  reader.
+- `trafilatura` is plain HTTP: fastest, but it cannot render JavaScript.
 - `read_page` refuses loopback, private and link-local addresses, because the LLM chooses the
   URLs.
 

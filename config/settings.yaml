@@ -17,6 +17,7 @@ tools:
     provider: ${SEARCH_PROVIDER:-ddgs}     # ddgs (free, no key) | tavily (TAVILY_API_KEY) | brave (BRAVE_API_KEY)
     max_results: 6
   read_page:
-    provider: ${READER_PROVIDER:-trafilatura}  # trafilatura (free, local) | jina (free tier, JS pages) | firecrawl (FIRECRAWL_API_KEY)
+    provider: ${READER_PROVIDER:-scrapling}  # scrapling (free; stealth browser for blocked/JS pages) | trafilatura (free, plain HTTP) | jina (free tier) | firecrawl (FIRECRAWL_API_KEY)
+    browser: ${READER_BROWSER:-true}   # scrapling only: allow the stealth-browser fallback (needs `uv run scrapling install`)
     max_chars: 8000
   current_date: {}
