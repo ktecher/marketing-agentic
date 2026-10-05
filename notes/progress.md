@@ -29,3 +29,28 @@ tool_choice spellings (True / dict / unknown name), missing structured_output no
 of looping on empty replies, `response_format` refused loudly, re-import after a half-failed
 module keeps the real error, null `result`, and ANTHROPIC_AUTH_TOKEN/BASE_URL also stripped.
 Phase 3+ note: agents must not pass `response_format=` with claude_code; use ToolStrategy.
+
+
+## 2026-10-05 — Phases 2-8 (autonomous run, parallel agents)
+
+Built: tools (web_search ddgs/tavily/brave, read_page trafilatura/jina/firecrawl with SSRF
+guard, mock mode + 32-entry/45-page fictional fixture world), three specialists, supervisor
+(route → agent nodes → finish; single specialist passed through verbatim, several synthesised),
+shared trace, CLI `agent`/`ask`, Streamlit UI (team strip, live trace, session-only API key),
+Docker (Ollama on host by default), README.
+
+Bugs found and fixed:
+- ClaudeCodeChat: native tool attempts → ungrounded answers (0/3 → 5/5 clean after instruction
+  rewrite) and stub final answers ("done") in ~50% of runs (7/7 full reports after
+  stream-json recovery). Both silent, both caught only by reading the CLI event stream.
+- Supervisor: specialist answers duplicated in the trace; build errors escaped `run()`.
+- Mock lookup split "Nuvéa" into "nuv"+"a" (accent stripping added); `_load` cache thrashed.
+- Content drafts' header lines ran together in markdown (prompt now asks for blank lines).
+
+Verified: 54 offline tests; live e2e `ask` Kiraleaf→3 Instagram posts in mock mode (145s,
+2 specialists, synthesised); UI run in Chrome (36s, chips + trace + answer); the README's
+4th-agent tutorial followed literally in a scratch copy — supervisor routed to `seo_audit`
+with no code edits (44s); Docker image healthy, Ollama ping + tool call from inside it.
+
+Next ideas: Arabic variations (language is already a prompt parameter in content_drafting);
+`anthropic` provider for client deployments (much faster than claude_code).

@@ -13,13 +13,21 @@ end of each phase.
 |---|---|
 | `config/settings.yaml` | Global: `mock_mode`, default `llm`, per-tool provider options |
 | `config/agents.yaml` | Supervisor + specialists: enabled, description, model, tools, prompt |
-| `config/prompts/*.md` | One system prompt per agent |
+| `config/prompts/*.md` | One system prompt per agent, plus `supervisor.md` (routing, `{agents}` placeholder) and `synthesis.md` |
 | `core/config.py` | Loads YAML, expands `${VAR:-default}` from env/.env, validates with pydantic |
 | `core/models.py` | `get_model(spec)` for every provider, incl. `ClaudeCodeChat` |
-| `tools/registry.py` | `@register_tool`, `build_tools(names, settings)` with error wrapping |
+| `core/supervisor.py` | Supervisor graph: `route` → one node per enabled agent → `route` … → `finish`; `run(app, request)` yields trace Steps |
+| `core/trace.py` | `Step` + `stream_steps`: turns LangGraph stream updates into the trace (CLI and UI share it) |
+| `tools/registry.py` | `@register_tool`, `build_tools(names, settings)` with error wrapping + mock-mode switch |
+| `tools/web_search.py`, `tools/read_page.py` | Free defaults (ddgs, trafilatura) + paid swaps; `read_page` refuses non-public addresses |
+| `tools/mock.py`, `data/mock/` | Mock mode: fixture answers labelled `[mock data]`; fictional brand world (see `data/mock/README.md`) |
 | `agents/registry.py` | `@register_agent`, `build_agent`, `build_enabled_agents` |
 | `agents/base.py` | `build_react_agent` — shared ReAct loop (`langchain.agents.create_agent`) |
-| `cli.py` | `config`, `tools`, `tool <name> '<json>'`, `ping` |
+| `agents/<name>.py` | competitor_research, content_drafting, trend_monitoring (standard pattern) |
+| `cli.py` | `config`, `tools`, `tool`, `ping`, `agent <name> "<req>"`, `ask "<req>"`; `--mock` on any |
+| `ui/app.py`, `ui/theme.css` | Streamlit demo: live trace, team strip, sidebar LLM settings (session-only key) |
+| `examples/*.yaml` | Example requests per agent and end to end |
+| `Dockerfile`, `docker-compose.yml` | Container defaults to Ollama on the host (claude_code can't run in a container) |
 | `tests/` | Offline by default; `live` marker for real LLM/network |
 
 ## Conventions
@@ -54,6 +62,16 @@ skills never reach the agents. It strips `ANTHROPIC_API_KEY` from the subprocess
 uses the subscription. Tool calls are emulated with `--json-schema`; `with_structured_output`
 works through the same path. A test guards each of these.
 
+It reads `--output-format stream-json` because two failure modes only show in the event stream,
+both silent (exit 0, well-formed output) and both seen in ~50% of runs before the fixes:
+- the model calls a bound tool NATIVELY ("No such tool") then returns no tool calls → those
+  attempts are converted into the tool calls (`_native_attempts`);
+- the model writes the final answer as plain text and puts a stub ("done", "see above") in
+  `content` → the longest assistant text is used when `content` is short (`_recover_answer`).
+`_TOOL_INSTRUCTIONS` tells the model both rules; the recovery code is the backstop. When an
+agent's output looks wrong on claude_code, re-run with stream-json and read every event before
+changing a prompt.
+
 ## How to add a tool
 
 1. New module `tools/<name>.py`: a pydantic args model and a function
@@ -86,4 +104,11 @@ uv sync                          # install
 uv run pytest -q                 # offline tests
 RUN_LIVE=1 uv run pytest -q      # include live LLM/network tests
 uv run python cli.py ping        # check the configured LLM
+uv run python cli.py agent trend_monitoring "What are people saying about Aurelle Skin?" --mock
+uv run python cli.py ask "Research Kiraleaf, then draft 3 posts against them" --mock
+uv run streamlit run ui/app.py   # demo UI on :8501
+docker compose up --build        # container on :8501 (Ollama on host by default)
 ```
+
+Runs on claude_code take ~30-60s per specialist and ~2-3 min for a two-agent request.
+Parallel agents/sessions: never `git stash`/checkout for a baseline (use `git show HEAD:<file>`).

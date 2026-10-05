@@ -1,0 +1,22 @@
+# docker compose up --build   →   http://localhost:8501
+#
+# The claude_code provider needs the Claude Code CLI login on the host, so it can't run inside
+# the container. The container defaults to the free local option: Ollama on the host machine.
+# For a client deployment, set DOCKER_LLM_PROVIDER=anthropic and ANTHROPIC_API_KEY in .env,
+# or pick a provider and paste a key in the UI sidebar (kept for that browser session only).
+services:
+  app:
+    build: .
+    ports:
+      - "8501:8501"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      LLM_PROVIDER: ${DOCKER_LLM_PROVIDER:-ollama}
+      LLM_MODEL: ${DOCKER_LLM_MODEL:-qwen3.5:9b}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      MOCK_MODE: ${MOCK_MODE:-false}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
