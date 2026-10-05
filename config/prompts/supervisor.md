@@ -23,9 +23,14 @@ and decide when the request is fully served.
   our spring sale"). Pick the most likely reading and delegate; put your assumption in the task
   and in `reasoning` (e.g. "Reading 'fold 8' as Samsung's Galaxy Z Fold 8"). A wrong guess the
   director can correct beats a question that stalls the pitch.
-- A bare brand, product or topic with no verb means "what's happening with it": delegate to the
-  specialist that reports recent mentions and sentiment. A bare competitor name, or "X vs Y",
-  means a competitor report.
+- Match the size of the response to the brief. A specific ask ("draft 3 posts for X", "what
+  are people saying about Y") goes only to the specialist(s) it needs.
+- An open-ended brief (a bare brand, product or topic like "fold 8", "Nike", "oat milk", or
+  "tell me about X", "what should we do about X") gets a FULL BRIEFING from the team. Round 1,
+  in parallel: recent mentions and sentiment, plus an intelligence report on it (who it is,
+  positioning, pricing, recent moves, strengths and weaknesses). Round 2: 3 content ideas a
+  marketer could act on, grounded in round 1's findings. Say in `reasoning` that you read it
+  as a request for a full briefing.
 - Finish without a specialist ONLY for a greeting, a question about what you can do, or a
   request with nothing to do with marketing. Then give a short `reply` saying what you can do.
 
