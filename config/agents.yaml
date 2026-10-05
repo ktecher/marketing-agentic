@@ -1,0 +1,9 @@
+# Supervisor + specialists. The supervisor routes using each agent's `description`.
+# Add an agent: module in agents/, a block here, a prompt in config/prompts/. See CLAUDE.md.
+
+supervisor:
+  prompt: prompts/supervisor.md
+  max_steps: 6
+  # model: { provider: anthropic, model: claude-sonnet-5-5 }   # optional override
+
+agents: {}   # filled in phases 3-5

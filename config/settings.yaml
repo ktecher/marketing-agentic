@@ -1,0 +1,15 @@
+# Global settings. ${VAR:-default} reads an environment variable (from .env), else the default.
+
+# true = tools return cached sample data from data/mock/ (no network). The LLM still runs.
+mock_mode: ${MOCK_MODE:-false}
+
+# Default LLM for every agent. Override per agent in agents.yaml.
+llm:
+  provider: ${LLM_PROVIDER:-claude_code}   # claude_code | anthropic | openai | ollama | openai_compatible
+  model: ${LLM_MODEL:-sonnet}
+  base_url: ${LLM_BASE_URL:-}              # openai_compatible / ollama only
+  # temperature: 0.3                       # ignored by claude_code
+
+# Tool providers. Free default first; paid swap in the comment.
+tools:
+  current_date: {}

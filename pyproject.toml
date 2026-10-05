@@ -1,0 +1,24 @@
+[project]
+name = "marketing-agentic"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "langchain>=1.4.3",
+    "langchain-anthropic>=1.7.5",
+    "langchain-core>=1.6.6",
+    "langchain-ollama>=1.1.0",
+    "langchain-openai>=1.6.7",
+    "langgraph>=1.2.12",
+    "pydantic>=2.13.5",
+    "python-dotenv>=1.2.4",
+    "pyyaml>=6.0.3",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+markers = ["live: calls a real LLM or network (run with RUN_LIVE=1)"]
