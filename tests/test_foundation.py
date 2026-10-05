@@ -1,6 +1,7 @@
 """Phase 1: config, model layer, tool and agent registries. Offline; no LLM calls."""
 
 import json
+import os
 import subprocess
 
 import pytest
@@ -293,3 +294,26 @@ def test_server_key_never_goes_to_a_visitor_supplied_url(monkeypatch):
     assert mine.openai_api_key.get_secret_value() == "visitor-key"
     with pytest.raises(models.ModelConfigError, match="base URL refused"):
         models.get_model(ModelSpec(provider="openai_compatible", model="m", base_url="http://169.254.169.254/v1", api_key="k"))
+
+
+def test_save_env_replaces_appends_quotes_and_applies(tmp_path, monkeypatch):
+    from core.config import save_env
+    from dotenv import dotenv_values
+    env = tmp_path / ".env"
+    env.write_text("# comment\nSERPER_API_KEY=old\nOTHER=keep\n")
+    monkeypatch.delenv("TAVILY_API_KEY", raising=False)
+    save_env({"SERPER_API_KEY": "new", "TAVILY_API_KEY": "tvly-a#b c"}, env)
+    assert dotenv_values(env) == {"SERPER_API_KEY": "new", "OTHER": "keep", "TAVILY_API_KEY": "tvly-a#b c"}
+    assert env.read_text().startswith("# comment\n") and os.environ["TAVILY_API_KEY"] == "tvly-a#b c"
+    with pytest.raises(ValueError):
+        save_env({"BAD KEY": "x"}, env)
+    with pytest.raises(ValueError):
+        save_env({"OK": 'a"\nINJECTED=1'}, env)
+
+
+def test_ui_save_can_be_switched_off(monkeypatch):
+    from core.config import ui_can_save
+    monkeypatch.delenv("ALLOW_UI_SAVE", raising=False)
+    assert ui_can_save()
+    monkeypatch.setenv("ALLOW_UI_SAVE", "false")
+    assert not ui_can_save()

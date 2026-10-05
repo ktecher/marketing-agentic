@@ -9,7 +9,7 @@ from typing import Literal
 import httpx
 from pydantic import BaseModel, Field
 
-from tools.registry import register_tool
+from tools.registry import register_tool, secret
 
 Recency = Literal["any", "day", "week", "month", "year"]
 _AD_URLS = ("bing.com/aclick", "duckduckgo.com/y.js")  # sponsored results ddgs passes through
@@ -80,14 +80,14 @@ def _ddgs_once(query: str, kind: str, recency: Recency, n: int, backend: str = "
         ]
 
 
-def _tavily(query: str, kind: str, recency: Recency, n: int, **_) -> list[dict]:
+def _tavily(query: str, kind: str, recency: Recency, n: int, options: dict | None = None, **_) -> list[dict]:
     body = {"query": query, "max_results": n, "topic": "news" if kind == "news" else "general"}
     if recency != "any":
         body["time_range"] = recency
     r = httpx.post(
         "https://api.tavily.com/search",
         json=body,
-        headers={"Authorization": f"Bearer {_key('TAVILY_API_KEY')}"},
+        headers={"Authorization": f"Bearer {_key('TAVILY_API_KEY', options)}"},
         timeout=30,
     )
     r.raise_for_status()
@@ -97,7 +97,7 @@ def _tavily(query: str, kind: str, recency: Recency, n: int, **_) -> list[dict]:
     ]
 
 
-def _brave(query: str, kind: str, recency: Recency, n: int, **_) -> list[dict]:
+def _brave(query: str, kind: str, recency: Recency, n: int, options: dict | None = None, **_) -> list[dict]:
     endpoint = "news" if kind == "news" else "web"
     params = {"q": query, "count": n}
     if recency != "any":
@@ -105,7 +105,7 @@ def _brave(query: str, kind: str, recency: Recency, n: int, **_) -> list[dict]:
     r = httpx.get(
         f"https://api.search.brave.com/res/v1/{endpoint}/search",
         params=params,
-        headers={"X-Subscription-Token": _key("BRAVE_API_KEY"), "Accept": "application/json"},
+        headers={"X-Subscription-Token": _key("BRAVE_API_KEY", options), "Accept": "application/json"},
         timeout=30,
     )
     r.raise_for_status()
@@ -117,7 +117,7 @@ def _brave(query: str, kind: str, recency: Recency, n: int, **_) -> list[dict]:
     ]
 
 
-def _serper(query: str, kind: str, recency: Recency, n: int, **_) -> list[dict]:
+def _serper(query: str, kind: str, recency: Recency, n: int, options: dict | None = None, **_) -> list[dict]:
     """Google results via Serper (serper.dev): 2,500 free searches, then prepaid credits."""
     body = {"q": query, "num": n}
     if recency != "any":
@@ -125,7 +125,7 @@ def _serper(query: str, kind: str, recency: Recency, n: int, **_) -> list[dict]:
     r = httpx.post(
         f"https://google.serper.dev/{'news' if kind == 'news' else 'search'}",
         json=body,
-        headers={"X-API-KEY": _key("SERPER_API_KEY"), "Content-Type": "application/json"},
+        headers={"X-API-KEY": _key("SERPER_API_KEY", options), "Content-Type": "application/json"},
         timeout=30,
     )
     r.raise_for_status()
@@ -136,10 +136,10 @@ def _serper(query: str, kind: str, recency: Recency, n: int, **_) -> list[dict]:
     ]
 
 
-def _key(name: str) -> str:
-    value = os.environ.get(name)
+def _key(name: str, options: dict | None = None) -> str:
+    value = secret(name, options)
     if not value:
-        raise RuntimeError(f"{name} is not set (needed by this search provider). Add it to .env or use provider: ddgs")
+        raise RuntimeError(f"{name} is not set. Add it under Settings > API keys in the UI, or in .env")
     return value
 
 
@@ -150,7 +150,7 @@ LABELS = {"ddgs": "Bing/Yahoo (free)", "serper": "Google", "tavily": "Tavily", "
 def _search_one(provider: str, query: str, kind: str, recency: Recency, n: int, options: dict) -> tuple[list[dict], str]:
     """Results from one provider, plus a note for the agent ('' when nothing to say)."""
     if provider != "ddgs":
-        return PROVIDERS[provider](query, kind, recency, n), ""
+        return PROVIDERS[provider](query, kind, recency, n, options=options), ""
     engines = {"web": options.get("web_engines", "auto"), "news": options.get("news_engines", "auto")}
     try:
         return PROVIDERS["ddgs"](query, kind, recency, n, backends=engines), ""

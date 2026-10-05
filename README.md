@@ -81,6 +81,24 @@ Ready-made requests, with notes on what to expect, are in `examples/`:
 
 Entries marked `mock: true` use the fictional sample data; run them with `--mock`.
 
+## Settings in the UI
+
+Click **Settings** in the sidebar to open the settings pop-up. Everything below can be chosen there, without editing files:
+
+- **LLM service** and model.
+- **Search sources**: any mix of Bing + Yahoo (free), Google (Serper), Tavily and Brave. Several
+  are searched at the same time and merged.
+- **Page reader**: Scrapling (free, default), plain HTTP, Jina or Firecrawl.
+- **API keys**: one field per service, each linking to where to get a key. A key you type is used
+  for that browser session only. If a chosen service has no key, the pop-up and the sidebar say so.
+- **Apply** uses the choices for this browser session.
+- **Save as defaults on this machine** writes the choices and typed keys to `.env`, so they apply
+  after a restart. The Docker setup hides this button (`ALLOW_UI_SAVE=false`), so visitors to a
+  shared deployment can use their own keys but cannot replace the server's.
+
+For a client deployment, put the client's keys in `.env` (or the server's environment) and keep
+`ALLOW_UI_SAVE=false`.
+
 ## Choosing the LLM service
 
 Set the default for every agent in `.env` or in `config/settings.yaml` (the `llm:` block).
@@ -111,9 +129,9 @@ LLM_MODEL=claude-sonnet-5-5
 ANTHROPIC_API_KEY=<the client's key>
 ```
 
-**In the UI.** The sidebar has an LLM service section: pick the service, model and base URL, and
-paste an API key. The key is kept for that browser session only. Leave it blank to use the
-server's key from `.env`.
+**In the UI.** Open **Settings** in the sidebar: pick the service, model and base URL, and paste
+the API key under API keys. A typed key is kept for that browser session only; leave it blank to
+use the saved key from `.env`.
 
 **Per-agent override.** Give one agent, or the supervisor, a different model in
 `config/agents.yaml`:

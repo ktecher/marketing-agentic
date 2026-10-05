@@ -38,7 +38,10 @@ end of each phase.
   The supervisor reads agents from the registry + `agents.yaml`, never by import.
 - **Tools never raise into the agent.** `build_tools` turns exceptions into
   `TOOL_ERROR (<name>): <Type>: <msg>` text so the agent can report and continue.
-- **Secrets from env only.** Add a new key to `.env.example`, never to YAML.
+- **Secrets from env or the UI session only.** Add a new key to `.env.example` and to `API_KEYS` in
+  `ui/app.py`, never to YAML. Read keys with `tools.registry.secret(name, options)`: it prefers the
+  UI session's key (`settings.secrets`, never written to `os.environ`) over `.env`.
+- Tests never read the real `.env` (`tests/conftest.py` disables it); set env explicitly per test.
 - Verify LangChain/LangGraph APIs against the installed package (`inspect.signature`), not
   memory. LangChain 1.x moved things: use `langchain.agents.create_agent`, `langchain.chat_models.init_chat_model`.
 

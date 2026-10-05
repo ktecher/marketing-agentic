@@ -19,6 +19,9 @@ services:
       MOCK_MODE: ${MOCK_MODE:-false}
       # The image ships without Scrapling's browser (~500 MB); pages still read via its fast path.
       READER_BROWSER: ${READER_BROWSER:-false}
+      # Shared deployment: visitors may use their own keys for their session, but may not
+      # overwrite the server's defaults. Set true only for a single-user box.
+      ALLOW_UI_SAVE: ${ALLOW_UI_SAVE:-false}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

@@ -10,7 +10,7 @@ from urllib.parse import urljoin, urlparse
 import httpx
 from pydantic import BaseModel, Field
 
-from tools.registry import register_tool
+from tools.registry import register_tool, secret
 
 _MAX_BYTES = 5_000_000  # stop reading huge responses; the text is truncated to max_chars anyway
 _UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128 Safari/537.36"
@@ -122,7 +122,7 @@ def _trafilatura(url: str, options: dict) -> str:
 
 def _jina(url: str, options: dict) -> str:
     headers = {"Accept": "text/plain"}
-    if key := os.environ.get("JINA_API_KEY"):
+    if key := secret("JINA_API_KEY", options):
         headers["Authorization"] = f"Bearer {key}"
     r = httpx.get(f"https://r.jina.ai/{url}", headers=headers, timeout=60)
     r.raise_for_status()
@@ -130,9 +130,9 @@ def _jina(url: str, options: dict) -> str:
 
 
 def _firecrawl(url: str, options: dict) -> str:
-    key = os.environ.get("FIRECRAWL_API_KEY")
+    key = secret("FIRECRAWL_API_KEY", options)
     if not key:
-        raise RuntimeError("FIRECRAWL_API_KEY is not set. Add it to .env or use provider: trafilatura")
+        raise RuntimeError("FIRECRAWL_API_KEY is not set. Add it under Settings > API keys in the UI, or in .env")
     r = httpx.post(
         "https://api.firecrawl.dev/v1/scrape",
         json={"url": url, "formats": ["markdown"], "onlyMainContent": True},

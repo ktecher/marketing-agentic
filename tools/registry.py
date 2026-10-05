@@ -14,6 +14,7 @@ back to the agent as a TOOL_ERROR string instead of crashing the run.
 """
 
 import importlib
+import os
 import pkgutil
 from dataclasses import dataclass
 from typing import Callable
@@ -59,8 +60,14 @@ def available_tools() -> dict[str, ToolDef]:
     return dict(_TOOLS)
 
 
+def secret(name: str, options: dict | None = None) -> str | None:
+    """An API key: the UI session's value first (passed in options), then the environment/.env."""
+    session = (options or {}).get("_secrets", {}).get(name)
+    return (session.get_secret_value() if session else None) or os.environ.get(name) or None
+
+
 def _wrap(tool: ToolDef, settings: Settings) -> Callable[..., str]:
-    options = settings.tools.get(tool.name, {})
+    options = {**settings.tools.get(tool.name, {}), "_secrets": settings.secrets}
 
     def run(**kwargs) -> str:
         try:

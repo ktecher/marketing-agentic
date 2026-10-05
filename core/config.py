@@ -38,6 +38,9 @@ class Settings(BaseModel):
     mock_mode: bool = False
     llm: ModelSpec
     tools: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    # API keys typed in the UI for one browser session, by env var name (e.g. SERPER_API_KEY).
+    # They win over .env and are never written to os.environ, disk or a dump.
+    secrets: dict[str, SecretStr] = Field(default_factory=dict, exclude=True)
 
 
 class SupervisorConfig(BaseModel):
@@ -104,6 +107,31 @@ def load_config(config_dir: Path = CONFIG_DIR) -> AppConfig:
         agents=agents_yaml.get("agents") or {},
         config_dir=config_dir,
     )
+
+
+def ui_can_save() -> bool:
+    """Whether the UI may write defaults to .env. Off in shared deployments (ALLOW_UI_SAVE=false),
+    so a visitor cannot replace the server's keys."""
+    return os.environ.get("ALLOW_UI_SAVE", "true").strip().lower() not in ("false", "0", "no", "off")
+
+
+def save_env(updates: dict[str, str], path: Path | None = None) -> None:
+    """Set KEY=value lines in .env (replacing or appending) and apply them to this process."""
+    path = path or ROOT / ".env"
+    lines = path.read_text(encoding="utf-8").splitlines() if path.exists() else []
+    for key, value in updates.items():
+        if not re.fullmatch(r"[A-Z][A-Z0-9_]*", key) or "\n" in value or '"' in value:
+            raise ValueError(f"refusing to write {key!r}")
+        # Quote anything dotenv would misread: an unquoted " #" starts a comment.
+        line = f'{key}="{value}"' if re.search(r"[\s#'\\]", value) else f"{key}={value}"
+        for i, existing in enumerate(lines):
+            if re.match(rf"\s*{key}\s*=", existing):
+                lines[i] = line
+                break
+        else:
+            lines.append(line)
+        os.environ[key] = value
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 @lru_cache(maxsize=1)

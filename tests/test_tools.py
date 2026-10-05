@@ -274,3 +274,25 @@ def test_relative_and_written_dates_are_not_cut():
     out = web_search._format([{"title": "T", "url": "https://u.example", "date": "4 weeks ago", "source": "Google"},
                               {"title": "U", "url": "https://v.example", "date": "Jul 30, 2026"}])
     assert "[Google · 4 weeks ago]" in out and "[Jul 30, 2026]" in out
+
+
+def test_session_key_wins_and_never_leaks(monkeypatch):
+    from pydantic import SecretStr
+    monkeypatch.setenv("SERPER_API_KEY", "server-key")
+    sent = []
+
+    class Resp:
+        def raise_for_status(self): pass
+        def json(self): return {"organic": []}
+
+    monkeypatch.setattr(web_search.httpx, "post", lambda url, json, headers, timeout: sent.append(headers["X-API-KEY"]) or Resp())
+    settings = _settings(tools={"web_search": {"provider": "serper"}})
+    settings.secrets = {"SERPER_API_KEY": SecretStr("session-key")}
+    [tool] = build_tools(["web_search"], settings)
+    tool.invoke({"query": "x"})
+    assert sent == ["session-key"]
+    assert os.environ["SERPER_API_KEY"] == "server-key"  # the session key never replaced the env
+    assert "session-key" not in settings.model_dump_json()
+    [plain] = build_tools(["web_search"], _settings(tools={"web_search": {"provider": "serper"}}))
+    plain.invoke({"query": "x"})
+    assert sent[-1] == "server-key"  # no session key: falls back to .env

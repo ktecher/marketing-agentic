@@ -4,6 +4,7 @@ Run: uv run streamlit run ui/app.py
 """
 
 import html
+import os
 import re
 import sys
 import time
@@ -17,7 +18,9 @@ import streamlit as st  # noqa: E402
 import yaml  # noqa: E402
 
 import core.supervisor as supervisor  # noqa: E402  (module attribute, so tests can patch run)
-from core.config import ModelSpec, load_config  # noqa: E402
+from pydantic import SecretStr  # noqa: E402
+
+from core.config import ModelSpec, load_config, save_env, ui_can_save  # noqa: E402
 from core.trace import Step  # noqa: E402
 
 AGENT_COLOURS = {
@@ -37,7 +40,22 @@ PROVIDERS = {
 }
 DEFAULT_MODELS = {"claude_code": "sonnet", "anthropic": "claude-sonnet-5-5", "openai": "gpt-5.1",
                   "ollama": "qwen3.5:9b", "openai_compatible": ""}
-NEEDS_KEY = {"anthropic", "openai", "openai_compatible"}
+LLM_KEY_VAR = {"anthropic": "ANTHROPIC_API_KEY", "openai": "OPENAI_API_KEY", "openai_compatible": "LLM_API_KEY"}
+SEARCH_SOURCES = {"ddgs": "Bing + Yahoo (free)", "serper": "Google (Serper)", "tavily": "Tavily",
+                  "brave": "Brave Search"}
+READERS = {"scrapling": "Scrapling (free)", "trafilatura": "Plain HTTP (free, fastest)",
+           "jina": "Jina Reader", "firecrawl": "Firecrawl"}
+# (env var, label, where to get it, the source/reader/LLM service that needs it, required?)
+API_KEYS = [
+    ("SERPER_API_KEY", "Google (Serper)", "https://serper.dev/api-keys", "serper", True),
+    ("TAVILY_API_KEY", "Tavily", "https://app.tavily.com", "tavily", True),
+    ("BRAVE_API_KEY", "Brave Search", "https://api-dashboard.search.brave.com", "brave", True),
+    ("FIRECRAWL_API_KEY", "Firecrawl", "https://www.firecrawl.dev/app/api-keys", "firecrawl", True),
+    ("JINA_API_KEY", "Jina Reader (optional, raises limits)", "https://jina.ai/reader", "jina", False),
+    ("ANTHROPIC_API_KEY", "Anthropic", "https://console.anthropic.com/settings/keys", "anthropic", True),
+    ("OPENAI_API_KEY", "OpenAI", "https://platform.openai.com/api-keys", "openai", True),
+    ("LLM_API_KEY", "OpenAI-compatible service", "", "openai_compatible", True),
+]
 NEEDS_URL = {"openai_compatible"}  # ollama uses the server's OLLAMA_BASE_URL: a visitor-typed URL would make the server call any host
 MOCK_PREFIX = "[mock data]"
 
@@ -306,34 +324,107 @@ def pick_example(text: str) -> None:
     st.session_state["request"] = text
 
 
-def sidebar() -> tuple[bool, ModelSpec]:
-    cfg_llm = base.settings.llm
+def default_settings() -> dict:
+    """This machine's defaults (config + .env), as the Settings pop-up edits them."""
+    llm, tools = base.settings.llm, base.settings.tools
+    search = [p.strip() for p in str(tools.get("web_search", {}).get("provider", "ddgs")).split(",")]
+    reader = tools.get("read_page", {}).get("provider", "scrapling")
+    return {"provider": llm.provider, "model": llm.model, "base_url": llm.base_url or "",
+            "search": [p for p in search if p in SEARCH_SOURCES] or ["ddgs"],
+            "reader": reader if reader in READERS else "scrapling", "keys": {}}
+
+
+def current() -> dict:
+    """The settings in force for this browser session (the pop-up's last Apply, else defaults).
+    Kept outside widget state: widgets inside a dialog are forgotten when it closes."""
+    return st.session_state.setdefault("settings", default_settings())
+
+
+def missing_keys(cfg: dict) -> list[str]:
+    in_use = {cfg["provider"], cfg["reader"], *cfg["search"]}
+    return [label for var, label, _, service, required in API_KEYS
+            if required and service in in_use and not cfg["keys"].get(var) and not os.environ.get(var)]
+
+
+def summary(cfg: dict) -> str:
+    sources = ", ".join(SEARCH_SOURCES[p].replace(" (free)", "") for p in cfg["search"])
+    return f"{PROVIDERS[cfg['provider']].split(' (')[0]} · {cfg['model']}  \nSearch: {sources}  \nReader: {READERS[cfg['reader']]}"
+
+
+@st.dialog("Settings", width="large")
+def settings_dialog() -> None:
+    cfg = current()
+    ss = st.session_state
+    left, right = st.columns(2, gap="large")
+    with left:
+        st.subheader("LLM service", anchor=False)
+        names = list(PROVIDERS)
+        provider = st.selectbox("Service", names, index=names.index(cfg["provider"]), format_func=PROVIDERS.get,
+                                key="set_provider")
+        model = st.text_input("Model", key=f"set_model_{provider}",
+                              value=cfg["model"] if provider == cfg["provider"] else DEFAULT_MODELS[provider],
+                              placeholder="Model id from your provider")
+        base_url = ""
+        if provider in NEEDS_URL:
+            base_url = st.text_input("Base URL", key=f"set_url_{provider}", placeholder="https://api.groq.com/openai/v1",
+                                     value=cfg["base_url"] if provider == cfg["provider"] else "")
+        st.subheader("Search and page reading", anchor=False)
+        search = st.multiselect("Search sources", list(SEARCH_SOURCES), default=cfg["search"],
+                                format_func=SEARCH_SOURCES.get, key="set_search",
+                                help="Several sources are searched at the same time and the results merged.")
+        reader = st.selectbox("Page reader", list(READERS), index=list(READERS).index(cfg["reader"]),
+                              format_func=READERS.get, key="set_reader")
+    with right:
+        st.subheader("API keys", anchor=False)
+        st.caption("A key typed here is used for this browser session. "
+                   "Save as defaults to keep it on this machine.")
+        typed = {}
+        for var, label, url, service, _ in API_KEYS:
+            saved = bool(os.environ.get(var))
+            value = st.text_input(label, type="password", key=f"set_key_{var}", value=cfg["keys"].get(var, ""),
+                                  placeholder="Saved on this machine" if saved else "Not set",
+                                  help=(f"Get one at {url}. " if url else "") + "Type a new key to replace the saved one.")
+            if value.strip():
+                typed[var] = value.strip()
+
+    chosen = {"provider": provider, "model": model.strip(), "base_url": base_url.strip(),
+              "search": search or ["ddgs"], "reader": reader, "keys": typed}
+    if gaps := missing_keys(chosen):
+        st.warning("Needs a key: " + ", ".join(gaps) + ".")
+
+    apply_col, save_col = st.columns(2)
+    if apply_col.button("Apply", type="primary", key="set_apply", use_container_width=True):
+        ss["settings"] = chosen
+        st.rerun()
+    if ui_can_save() and save_col.button("Save as defaults on this machine", key="set_save", use_container_width=True):
+        updates = {"LLM_PROVIDER": chosen["provider"], "LLM_MODEL": chosen["model"],
+                   "SEARCH_PROVIDER": ",".join(chosen["search"]), "READER_PROVIDER": chosen["reader"], **typed}
+        if chosen["provider"] in NEEDS_URL:
+            updates["LLM_BASE_URL"] = chosen["base_url"]
+        try:
+            save_env(updates)
+        except (OSError, ValueError) as e:
+            st.error(f"Couldn't save: {e}")
+            return
+        ss["settings"] = {**chosen, "keys": {}}  # saved keys now come from .env
+        ss["saved_msg"] = "Saved. These are now the defaults on this machine."
+        st.rerun()
+
+
+def sidebar() -> dict:
+    cfg = current()
     with st.sidebar:
         st.header("Settings", anchor=False)
         mock = st.toggle("Sample data mode", value=base.settings.mock_mode, key="mock")
         st.caption("Uses a fictional brand world instead of the live web. "
                    "Use it if the venue's internet is unreliable.")
-
-        st.subheader("LLM service", anchor=False)
-        names = list(PROVIDERS)
-        provider = st.selectbox("Service", names, index=names.index(cfg_llm.provider),
-                                format_func=PROVIDERS.get, key="provider")
-        default_model = cfg_llm.model if provider == cfg_llm.provider else DEFAULT_MODELS[provider]
-        model = st.text_input("Model", value=default_model, key=f"model_{provider}",
-                              placeholder="Model id from your provider")
-        base_url = None
-        if provider in NEEDS_URL:
-            default_url = (cfg_llm.base_url or "") if provider == cfg_llm.provider else ""
-            base_url = st.text_input("Base URL", value=default_url, key=f"url_{provider}",
-                                     placeholder="http://localhost:11434" if provider == "ollama"
-                                     else "https://api.groq.com/openai/v1")
-        key = None
-        if provider in NEEDS_KEY:
-            key = st.text_input("API key", type="password", key=f"key_{provider}",
-                                placeholder="Leave blank to use the server's key")
-            st.caption("Key is kept for this browser session only.")
-        spec = ModelSpec(provider=provider, model=model.strip(), base_url=base_url or None,
-                         temperature=cfg_llm.temperature, api_key=key or None)
+        st.caption(summary(cfg))
+        if st.button("Settings", icon=":material/tune:", key="open_settings", use_container_width=True):
+            settings_dialog()
+        if gaps := missing_keys(cfg):
+            st.warning("Needs a key: " + ", ".join(gaps) + ". Open Settings to add it.")
+        if msg := st.session_state.pop("saved_msg", None):
+            st.success(msg)
 
         st.subheader("Team", anchor=False)
         rows = [("supervisor", SUPERVISOR_ROLE)] + [(n, a.description) for n, a in base.enabled_agents.items()]
@@ -341,7 +432,12 @@ def sidebar() -> tuple[bool, ModelSpec]:
             f'<div class="roster-row ag-{slug(n)}"><span class="avatar" aria-hidden="true">{esc(initials(n))}</span>'
             f'<div><div class="roster-name">{esc(human(n))}</div><div class="roster-desc">{esc(d)}</div></div></div>'
             for n, d in rows) + "</div>")
-    return mock, spec
+
+    spec = ModelSpec(provider=cfg["provider"], model=cfg["model"], base_url=cfg["base_url"] or None,
+                     temperature=base.settings.llm.temperature,
+                     api_key=cfg["keys"].get(LLM_KEY_VAR.get(cfg["provider"], "")) or None)
+    return {"mock": mock, "spec": spec, "search": cfg["search"], "reader": cfg["reader"],
+            "secrets": {k: SecretStr(v) for k, v in cfg["keys"].items()}}
 
 
 def examples(mock: bool) -> list[str]:
@@ -355,7 +451,8 @@ def examples(mock: bool) -> list[str]:
 # ── page ─────────────────────────────────────────────────────────────────────────────────────
 
 st.markdown(css(), unsafe_allow_html=True)
-mock, spec = sidebar()
+choices = sidebar()
+mock = choices["mock"]
 
 st.title("What should the team work on?", anchor=False)
 st.html('<p class="lead">Write the brief as you would to your agency. The supervisor hands it to the '
@@ -373,7 +470,10 @@ if clicked and not request.strip():
 if clicked:
     app = load_config()
     app.settings.mock_mode = mock
-    app.settings.llm = spec
+    app.settings.llm = choices["spec"]
+    app.settings.secrets = choices["secrets"]  # session-only; never os.environ
+    app.settings.tools.setdefault("web_search", {})["provider"] = ",".join(choices["search"])
+    app.settings.tools.setdefault("read_page", {})["provider"] = choices["reader"]
     timed: list[tuple[Step, float]] = []
     st.session_state["result"] = None
     show_run(request.strip(), timed, strip, live_iter=safe_steps(app, request.strip()))

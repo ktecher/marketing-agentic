@@ -42,6 +42,15 @@ def app_test(monkeypatch):
     return at
 
 
+def _in_settings(at, fill):
+    """Open the Settings pop-up, fill it, and run once. The test harness does not keep a dialog
+    open between runs (a browser does), so opening, filling and pressing must share one run."""
+    at.button(key="open_settings").click().run()
+    at.button(key="open_settings").click()
+    fill(at)
+    return at.run()
+
+
 def _markdown(at) -> str:
     return "\n".join(m.value for m in at.markdown)
 
@@ -50,8 +59,10 @@ def test_renders_with_settings(app_test):
     at = app_test.run()
     assert not at.exception
     assert at.toggle(key="mock") is not None
-    assert at.selectbox(key="provider").value in {"claude_code", "anthropic", "openai", "ollama", "openai_compatible"}
     assert at.button(key="brief").label == "Brief the team"
+    assert not [s for s in at.selectbox if s.key == "set_provider"]  # settings live in the pop-up, not the sidebar
+    at.button(key="open_settings").click().run()
+    assert at.selectbox(key="set_provider").value in {"claude_code", "anthropic", "openai", "ollama", "openai_compatible"}
 
 
 def test_example_chip_fills_the_box(app_test):
@@ -71,7 +82,7 @@ def test_scripted_run_shows_final_answer(app_test):
     app, request = at.calls[0]
     assert request == "Research Kiraleaf and draft posts."
     # Settings from the sidebar reach the run config.
-    assert app.settings.llm.provider == at.selectbox(key="provider").value
+    assert app.settings.llm.provider == at.session_state["settings"]["provider"]
     # The result survives a rerun (e.g. after clicking download).
     at.run()
     assert "Three posts for Aurelle Skin" in _markdown(at)
@@ -83,12 +94,19 @@ def test_session_key_reaches_spec_not_env(app_test, monkeypatch):
 
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     at = app_test.run()
-    at.selectbox(key="provider").set_value("anthropic").run()
-    at.text_input(key="key_anthropic").input("sk-test-123")
+
+    def fill(at):
+        at.selectbox(key="set_provider").set_value("anthropic")
+        at.button(key="set_apply").click()
+
+    _in_settings(at, fill)
+    _in_settings(at, lambda at: (at.text_input(key="set_key_ANTHROPIC_API_KEY").input("sk-test-123"),
+                                 at.button(key="set_apply").click()))
     at.text_area(key="request").input("Hi")
     at.button(key="brief").click().run()
     assert not at.exception
     app, _ = at.calls[0]
+    assert app.settings.llm.provider == "anthropic"
     assert app.settings.llm.api_key.get_secret_value() == "sk-test-123"
     # .env may define the variable (even as blank); what matters is the session key never lands there.
     assert all("sk-test-123" not in v for v in os.environ.values())
@@ -126,3 +144,46 @@ def test_team_strip_shows_parallel_specialists():
     st = team_status(steps + [Step("agent_answer", "trend_monitoring", ""), Step("agent_answer", "trend_monitoring", ""),
                               Step("agent_answer", "competitor_research", "")], running=True)
     assert st["trend_monitoring"] == st["competitor_research"] == "done" and st["supervisor"] == "active"
+
+
+def test_search_choices_and_session_keys_reach_the_run_not_the_env(app_test, monkeypatch):
+    import os
+    monkeypatch.delenv("SERPER_API_KEY", raising=False)
+    at = app_test.run()
+    _in_settings(at, lambda at: (at.multiselect(key="set_search").set_value(["ddgs", "serper"]),
+                                 at.button(key="set_apply").click()))
+    assert any("Needs a key: Google (Serper)" in w.value for w in at.warning)  # sidebar flags the gap
+    _in_settings(at, lambda at: (at.text_input(key="set_key_SERPER_API_KEY").input("serper-session-key"),
+                                 at.selectbox(key="set_reader").set_value("trafilatura"),
+                                 at.button(key="set_apply").click()))
+    at.text_area(key="request").input("Hi")
+    at.button(key="brief").click().run()
+    assert not at.exception and not at.warning
+    app, _ = at.calls[0]
+    assert app.settings.tools["web_search"]["provider"] == "ddgs,serper"
+    assert app.settings.tools["read_page"]["provider"] == "trafilatura"
+    assert app.settings.secrets["SERPER_API_KEY"].get_secret_value() == "serper-session-key"
+    assert os.environ.get("SERPER_API_KEY") != "serper-session-key"
+
+
+def test_save_defaults_writes_env(app_test, monkeypatch):
+    import core.config as cfg
+    saved = {}
+    monkeypatch.setattr(cfg, "save_env", lambda updates, path=None: saved.update(updates))
+    at = app_test.run()
+    _in_settings(at, lambda at: (at.multiselect(key="set_search").set_value(["ddgs", "tavily"]),
+                                 at.text_input(key="set_key_TAVILY_API_KEY").input("tvly-new"),
+                                 at.button(key="set_save").click()))
+    assert not at.exception
+    assert saved["SEARCH_PROVIDER"] == "ddgs,tavily" and saved["TAVILY_API_KEY"] == "tvly-new"
+    assert saved["LLM_PROVIDER"] and "READER_PROVIDER" in saved
+    assert at.session_state["settings"]["keys"] == {}  # saved keys now come from .env, not the session
+    assert any("Saved" in s.value for s in at.success)
+
+
+def test_save_button_hidden_when_disabled(app_test, monkeypatch):
+    monkeypatch.setenv("ALLOW_UI_SAVE", "false")
+    at = app_test.run()
+    at.button(key="open_settings").click().run()
+    assert [b for b in at.button if b.key == "set_apply"]
+    assert not [b for b in at.button if b.key == "set_save"]
