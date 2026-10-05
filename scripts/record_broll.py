@@ -34,6 +34,13 @@ CLIPS = {
         "brief": "Research our competitor Kiraleaf, then draft 3 Instagram posts positioning Aurelle Skin against them."
     },
     "06_settings_popup": {"settings": True},
+    # 1.25x UI zoom: same 1080x1920 output, everything drawn larger, so a push-in in the edit
+    # stays sharp (requested by the studio for the follow-up box in Instagram's bottom zone).
+    "03b_ramadan_cafe_content_zoom125": {
+        "brief": "Draft 3 Instagram captions for a Kuwaiti specialty café launching its Ramadan suhoor menu",
+        "follow_up": "Rewrite caption 1 for Snapchat, under 80 characters",
+        "zoom": 1.25,
+    },
 }
 
 
@@ -104,7 +111,11 @@ def run_brief(page, rec, brief: str, marks: dict, key: str):
 
 
 def record(clip: str, url: str):
+    global W, H, DPR
     spec = CLIPS[clip]
+    zoom = spec.get("zoom", 1.0)
+    # Same 1080x1920 output: shrink the CSS viewport and raise the pixel ratio by the zoom.
+    W, H, DPR = round(540 / zoom), round(960 / zoom), 2 * zoom
     work = OUT / ".work" / clip
     shutil.rmtree(work, ignore_errors=True)
     marks: dict[str, float] = {}
