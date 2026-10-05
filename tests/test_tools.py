@@ -268,3 +268,9 @@ def test_all_providers_failing_is_a_tool_error(monkeypatch):
         raise ConnectionError("down")
     tool = _multi_tool(monkeypatch, down, down)
     assert tool.invoke({"query": "x"}).startswith("TOOL_ERROR (web_search): RuntimeError: Bing/Yahoo (free): ConnectionError")
+
+
+def test_relative_and_written_dates_are_not_cut():
+    out = web_search._format([{"title": "T", "url": "https://u.example", "date": "4 weeks ago", "source": "Google"},
+                              {"title": "U", "url": "https://v.example", "date": "Jul 30, 2026"}])
+    assert "[Google · 4 weeks ago]" in out and "[Jul 30, 2026]" in out

@@ -1,6 +1,7 @@
 """web_search — free default: DuckDuckGo via `ddgs` (no key). Paid swaps: tavily, brave."""
 
 import os
+import re
 import threading
 import time
 from typing import Literal
@@ -32,7 +33,9 @@ def _format(results: list[dict]) -> str:
         return "No results."
     lines = []
     for i, r in enumerate(results, 1):
-        meta = " · ".join(x for x in (r.get("source"), (r.get("date") or "")[:10]) if x)
+        date = r.get("date") or ""
+        date = date[:10] if re.match(r"\d{4}-\d{2}-\d{2}T", date) else date  # trim ISO timestamps only ("4 weeks ago" stays whole)
+        meta = " · ".join(x for x in (r.get("source"), date) if x)
         title = r["title"] if len(r["title"]) <= 120 else r["title"][:117] + "..."  # engines sometimes merge carousel titles
         lines.append(f"{i}. {title}\n   {r['url']}" + (f"\n   [{meta}]" if meta else ""))
         if r.get("snippet"):

@@ -90,7 +90,8 @@ def test_session_key_reaches_spec_not_env(app_test, monkeypatch):
     assert not at.exception
     app, _ = at.calls[0]
     assert app.settings.llm.api_key.get_secret_value() == "sk-test-123"
-    assert "ANTHROPIC_API_KEY" not in os.environ
+    # .env may define the variable (even as blank); what matters is the session key never lands there.
+    assert all("sk-test-123" not in v for v in os.environ.values())
 
 
 def test_run_failure_renders_as_error(monkeypatch):
