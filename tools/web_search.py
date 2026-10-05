@@ -33,19 +33,21 @@ def _format(results: list[dict]) -> str:
     lines = []
     for i, r in enumerate(results, 1):
         meta = " · ".join(x for x in (r.get("source"), (r.get("date") or "")[:10]) if x)
-        lines.append(f"{i}. {r['title']}\n   {r['url']}" + (f"\n   [{meta}]" if meta else ""))
+        title = r["title"] if len(r["title"]) <= 120 else r["title"][:117] + "..."  # engines sometimes merge carousel titles
+        lines.append(f"{i}. {title}\n   {r['url']}" + (f"\n   [{meta}]" if meta else ""))
         if r.get("snippet"):
             lines.append(f"   {r['snippet'][:400]}")
     return "\n".join(lines)
 
 
-def _ddgs(query: str, kind: str, recency: Recency, n: int) -> list[dict]:
+def _ddgs(query: str, kind: str, recency: Recency, n: int, backends: dict | None = None) -> list[dict]:
     from ddgs.exceptions import DDGSException
 
+    backend = (backends or {}).get(kind, "auto")
     for attempt in range(1, _DDGS_ATTEMPTS + 1):
         try:
             with _DDGS_SLOTS:
-                return _ddgs_once(query, kind, recency, n)
+                return _ddgs_once(query, kind, recency, n, backend)
         except DDGSException as e:
             if attempt == _DDGS_ATTEMPTS:
                 raise RuntimeError(
@@ -56,10 +58,10 @@ def _ddgs(query: str, kind: str, recency: Recency, n: int) -> list[dict]:
     return []
 
 
-def _ddgs_once(query: str, kind: str, recency: Recency, n: int) -> list[dict]:
+def _ddgs_once(query: str, kind: str, recency: Recency, n: int, backend: str = "auto") -> list[dict]:
     from ddgs import DDGS
 
-    kwargs = {"max_results": n}
+    kwargs = {"max_results": n, "backend": backend}
     if recency != "any":
         kwargs["timelimit"] = recency[0]  # d / w / m / y
     with DDGS() as d:
@@ -75,7 +77,7 @@ def _ddgs_once(query: str, kind: str, recency: Recency, n: int) -> list[dict]:
         ]
 
 
-def _tavily(query: str, kind: str, recency: Recency, n: int) -> list[dict]:
+def _tavily(query: str, kind: str, recency: Recency, n: int, **_) -> list[dict]:
     body = {"query": query, "max_results": n, "topic": "news" if kind == "news" else "general"}
     if recency != "any":
         body["time_range"] = recency
@@ -92,7 +94,7 @@ def _tavily(query: str, kind: str, recency: Recency, n: int) -> list[dict]:
     ]
 
 
-def _brave(query: str, kind: str, recency: Recency, n: int) -> list[dict]:
+def _brave(query: str, kind: str, recency: Recency, n: int, **_) -> list[dict]:
     endpoint = "news" if kind == "news" else "web"
     params = {"q": query, "count": n}
     if recency != "any":
@@ -132,4 +134,17 @@ def web_search(query: str, kind: str = "web", recency: Recency = "any", *, optio
     provider = options.get("provider", "ddgs")
     if provider not in PROVIDERS:
         raise ValueError(f"unknown web_search provider '{provider}'; choose from {sorted(PROVIDERS)}")
-    return _format(PROVIDERS[provider](query, kind, recency, int(options.get("max_results", 6))))
+    n = int(options.get("max_results", 6))
+    if provider != "ddgs":
+        return _format(PROVIDERS[provider](query, kind, recency, n))
+    engines = {"web": options.get("web_engines", "auto"), "news": options.get("news_engines", "auto")}
+    try:
+        return _format(PROVIDERS["ddgs"](query, kind, recency, n, backends=engines))
+    except RuntimeError:
+        if recency == "any":
+            raise
+        # Date filters make the scraped engines refuse far more often (measured). Fall back to an
+        # unfiltered search and say so, so the agent checks dates itself instead of assuming them.
+        results = PROVIDERS["ddgs"](query, kind, "any", n, backends=engines)
+        return (f"[No results with the '{recency}' filter; these are from ANY date. Check each date "
+                f"before treating it as recent.]\n" + _format(results))

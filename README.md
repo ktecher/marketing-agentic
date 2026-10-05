@@ -166,8 +166,13 @@ READER_PROVIDER=jina
 
 Trade-offs:
 
-- DuckDuckGo (`ddgs`) is free but can rate-limit. If it does, switch on sample data mode or use
-  `tavily`.
+- `ddgs` is free because it reads search engines' public result pages, and engines refuse
+  automated traffic unevenly. On the network this was built on, web searches only worked on Bing
+  and Yahoo, so those are the default (`SEARCH_WEB_ENGINES=bing,yahoo`; news uses `auto`). If
+  searches start failing, test each engine (see Troubleshooting) and change the list. Searches
+  are queued two at a time and retried, and a search with a date filter that still returns
+  nothing is re-run without the filter, with a note telling the agent to check dates. For
+  dependable volume, use `tavily`.
 - `scrapling` first fetches with a real-browser fingerprint (about 1s). Only if the page is
   blocked or renders client-side (e.g. TikTok profiles) does it open its stealth browser (about
   10s). The browser needs a one-time `uv run scrapling install`; set `READER_BROWSER=false` to
@@ -403,3 +408,15 @@ data mode, or set `SEARCH_PROVIDER=tavily` with `TAVILY_API_KEY`.
 **Slow runs on `claude_code`.** Each LLM step is a separate CLI call of about 3-5 seconds, and
 multi-agent requests take many steps. Use sample data mode to remove search delays, run a single
 specialist with `cli.py agent`, or switch to `anthropic`.
+
+**Web search keeps failing ("free search engines returned nothing").** Find which engines answer from your network:
+
+```bash
+uv run python -c "
+from ddgs import DDGS
+for be in ['bing','yahoo','duckduckgo','brave','google','mojeek']:
+    try: print(be, len(DDGS().text('marketing automation', max_results=3, backend=be)))
+    except Exception as e: print(be, 'refused')"
+```
+
+Put the ones that answer in `SEARCH_WEB_ENGINES` (comma-separated), or switch on sample data mode.

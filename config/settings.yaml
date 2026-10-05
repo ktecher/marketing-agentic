@@ -16,6 +16,11 @@ tools:
   web_search:
     provider: ${SEARCH_PROVIDER:-ddgs}     # ddgs (free, no key) | tavily (TAVILY_API_KEY) | brave (BRAVE_API_KEY)
     max_results: 6
+    # ddgs only: which engines it scrapes. Measured 2026-10-05 from this network: for web
+    # searches DuckDuckGo, Brave, Google and Mojeek refused every query, Bing and Yahoo answered
+    # every one; "auto" kept picking the refusing ones. News worked on most engines.
+    web_engines: ${SEARCH_WEB_ENGINES:-bing,yahoo}
+    news_engines: ${SEARCH_NEWS_ENGINES:-auto}
   read_page:
     provider: ${READER_PROVIDER:-scrapling}  # scrapling (free; stealth browser for blocked/JS pages) | trafilatura (free, plain HTTP) | jina (free tier) | firecrawl (FIRECRAWL_API_KEY)
     browser: ${READER_BROWSER:-true}   # scrapling only: allow the stealth-browser fallback (needs `uv run scrapling install`)

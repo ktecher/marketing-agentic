@@ -93,7 +93,7 @@ def test_mock_mode_never_touches_network(fixtures, monkeypatch):
 
 
 def test_mock_mode_off_uses_real_provider(fixtures, monkeypatch):
-    monkeypatch.setitem(web_search.PROVIDERS, "ddgs", lambda *a: [{"title": "LIVE", "url": "https://l.example"}])
+    monkeypatch.setitem(web_search.PROVIDERS, "ddgs", lambda *a, **k: [{"title": "LIVE", "url": "https://l.example"}])
     [search] = build_tools(["web_search"], _settings(mock_mode=False))
     assert "LIVE" in search.invoke({"query": "Kiraleaf pricing"})
 
@@ -189,3 +189,35 @@ def test_ddgs_never_runs_more_than_two_at_once(monkeypatch):
     with ThreadPoolExecutor(6) as ex:
         list(ex.map(lambda _: web_search._ddgs("q", "web", "any", 5), range(6)))
     assert peak[0] == 2
+
+
+def test_ddgs_engines_come_from_config(monkeypatch):
+    seen = []
+    monkeypatch.setattr(web_search, "_ddgs_once", lambda q, k, r, n, backend: seen.append((k, backend)) or [])
+    [tool] = build_tools(["web_search"], _settings(tools={"web_search": {"provider": "ddgs", "web_engines": "bing,yahoo"}}))
+    tool.invoke({"query": "x"})
+    tool.invoke({"query": "x", "kind": "news"})
+    assert seen == [("web", "bing,yahoo"), ("news", "auto")]
+
+
+def test_date_filter_falls_back_to_unfiltered_with_a_warning(monkeypatch):
+    calls = []
+
+    def fake(q, kind, recency, n, backends=None):
+        calls.append(recency)
+        if recency != "any":
+            raise RuntimeError("free search engines returned nothing after 3 tries")
+        return [{"title": "Old but relevant", "url": "https://o.example"}]
+
+    monkeypatch.setitem(web_search.PROVIDERS, "ddgs", fake)
+    [tool] = build_tools(["web_search"], _settings(tools={"web_search": {"provider": "ddgs"}}))
+    out = tool.invoke({"query": "x", "recency": "month"})
+    assert calls == ["month", "any"]
+    assert out.startswith("[No results with the 'month' filter; these are from ANY date.") and "Old but relevant" in out
+    calls.clear()
+    assert tool.invoke({"query": "x"}) .startswith("1. Old but relevant") and calls == ["any"]
+
+
+def test_merged_titles_are_cut_short():
+    out = web_search._format([{"title": "A" * 300, "url": "https://u.example"}])
+    assert out.splitlines()[0] == "1. " + "A" * 117 + "..."
