@@ -4,11 +4,14 @@ Run: uv run streamlit run ui/app.py
 """
 
 import html
+import math
 import os
+import random
 import re
 import sys
 import time
 from pathlib import Path
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:  # `streamlit run ui/app.py` puts ui/ on sys.path, not the project root
@@ -168,6 +171,209 @@ def strip_html(status: dict[str, str]) -> str:
     return f'<div class="team" role="status" aria-label="Team activity">{"".join(chips)}</div>'
 
 
+# ── network view: the agency as a living cell ────────────────────────────────────────────────
+
+NET_COLOURS = {"competitor_research": "#2BB5B9", "content_drafting": "#C27BD6", "trend_monitoring": "#E2A743"}
+NET_W, NET_H = 1000, 500
+NUCLEUS = (500, 232)
+NET_WORDS = {"idle": "standing by", "active": "working", "done": "done", "failed": "failed"}
+NUCLEUS_WORDS = {"thinking": "thinking", "waiting": "waiting on the team", "final": "answer ready",
+                 "failed": "hit a problem", "idle": "standing by"}
+
+
+def glow_colour(name: str) -> str:
+    """The agent's hue, brightened for the dark stage."""
+    if name in NET_COLOURS:
+        return NET_COLOURS[name]
+    c = colour(name).lstrip("#")
+    return "#" + "".join(f"{round(int(c[i:i + 2], 16) * 0.65 + 255 * 0.35):02X}" for i in (0, 2, 4))
+
+
+def svg_text(s, n: int) -> str:
+    # The SVG goes through st.markdown (st.html strips <svg>): one line, escaped, no `$` for math.
+    return esc(preview(s, n)).replace("$", "&#36;")
+
+
+def agent_caption(steps: list[Step], agent: str) -> str:
+    caption = "Standing by"
+    for s in steps:
+        if s.kind == "route" and s.data.get("agent") == agent:
+            caption = f"Briefed: {s.data.get('task') or 'new task'}"
+        elif s.agent != agent:
+            continue
+        elif s.kind == "tool_call":
+            tool, args = s.data.get("tool", ""), s.data.get("args") or {}
+            if tool == "web_search":
+                caption = f"Searching: {args.get('query') or compact_args(args)}"
+            elif tool == "read_page":
+                host = urlparse(str(args.get("url", ""))).netloc.removeprefix("www.")
+                caption = f"Reading {host or 'a page'}"
+            else:
+                caption = f"Using {human(tool).lower()}"
+        elif s.kind == "thought":
+            caption = s.detail or s.title
+        elif s.kind == "agent_answer":
+            caption = "Done"
+        elif s.kind == "tool_error":
+            caption = "Hit an error, trying another way"
+        elif s.kind == "error":
+            caption = "Hit an error"
+    return caption
+
+
+def supervisor_caption(steps: list[Step], status: dict[str, str], running: bool) -> str:
+    if any(s.kind == "final" for s in steps):
+        return "Answer ready"
+    if status["supervisor"] == "failed":
+        return "Hit a problem"
+    if not running:
+        return "Stopped" if steps else "Waiting for a brief"
+    busy = [human(a) for a in TEAM[1:] if status[a] == "active"]
+    if status["supervisor"] != "active" and busy:
+        return f"Delegating to {busy[0]}" if len(busy) == 1 else f"Delegating to {len(busy)} specialists in parallel"
+    last_route = next((s for s in reversed(steps) if s.kind == "route"), None)
+    if last_route and not last_route.data.get("agent") and steps[-1] is last_route:
+        return "Writing the answer"
+    return "Thinking…"
+
+
+def _bokeh() -> str:
+    """Depth: a few blurred specks and a faint layer of tiny dots. Fixed seed, so it never jumps."""
+    rnd = random.Random(7)
+    big = "".join(f'<circle cx="{rnd.uniform(20, NET_W - 20):.0f}" cy="{rnd.uniform(15, NET_H - 15):.0f}" '
+                  f'r="{rnd.uniform(4, 22):.0f}" opacity="{rnd.uniform(0.05, 0.14):.2f}"/>' for _ in range(16))
+    dust = "".join(f'<circle cx="{rnd.uniform(0, NET_W):.0f}" cy="{rnd.uniform(0, NET_H):.0f}" '
+                   f'r="{rnd.uniform(0.8, 1.8):.1f}" opacity="{rnd.uniform(0.08, 0.22):.2f}"/>' for _ in range(70))
+    return f'<g class="bokeh" filter="url(#cell-soft)">{big}</g><g class="dust">{dust}</g>'
+
+
+BOKEH = _bokeh()
+CELL_TEXTURE = (  # bubbly surface for every sphere: rings of varied size, tiled
+    '<pattern id="cell-tex" width="46" height="46" patternUnits="userSpaceOnUse">'
+    '<g fill="#FFFFFF" fill-opacity="0.07" stroke="#FFFFFF" stroke-opacity="0.32" stroke-width="1">'
+    + "".join(f'<circle cx="{x}" cy="{y}" r="{r}"/>' for x, y, r in
+              [(8, 9, 6), (27, 6, 4), (40, 20, 5), (18, 26, 8), (5, 38, 4), (33, 37, 6), (44, 44, 3), (24, 44, 2.5)])
+    + '</g></pattern>'
+)
+
+
+def sphere_defs(gid: str, c: str) -> str:
+    """A translucent glassy sphere tinted with c: highlight off-centre top-left, darker body, lit rim."""
+    return (f'<radialGradient id="{gid}" cx="36%" cy="32%" r="72%">'
+            f'<stop offset="0" stop-color="#FFFFFF" stop-opacity="0.9"/>'
+            f'<stop offset="0.22" stop-color="{c}" stop-opacity="0.8"/>'
+            f'<stop offset="0.72" stop-color="{c}" stop-opacity="0.32"/>'
+            f'<stop offset="0.93" stop-color="{c}" stop-opacity="0.5"/>'
+            f'<stop offset="1" stop-color="#FFFFFF" stop-opacity="0.55"/></radialGradient>')
+
+
+def sphere(cls: str, gid: str, x: float, y: float, r: float) -> str:
+    return (f'<circle class="{cls}-glow" cx="{x:.1f}" cy="{y:.1f}" r="{r * 1.45:.1f}" filter="url(#cell-blur)"/>'
+            f'<circle class="{cls}-core" cx="{x:.1f}" cy="{y:.1f}" r="{r}" fill="url(#{gid})"/>'
+            f'<circle class="sphere-tex" cx="{x:.1f}" cy="{y:.1f}" r="{r - 1}" fill="url(#cell-tex)"/>'
+            f'<ellipse class="sphere-shine" cx="{x - r * 0.34:.1f}" cy="{y - r * 0.4:.1f}" rx="{r * 0.34:.1f}" '
+            f'ry="{r * 0.2:.1f}" transform="rotate(-35 {x - r * 0.34:.1f} {y - r * 0.4:.1f})"/>'
+            f'<circle class="sphere-rim" cx="{x:.1f}" cy="{y:.1f}" r="{r}"/>')
+
+
+def tube_paths(cx: float, cy: float, x: float, y: float, r0: float) -> list[str]:
+    """Two lobes from nucleus to agent: they leave the nucleus a little apart, bow out like petals,
+    and meet at the agent. Both run nucleus -> agent, so one dash animation means 'outward'."""
+    dx, dy = x - cx, y - cy
+    length = math.hypot(dx, dy)
+    ux, uy = dx / length, dy / length
+    paths = []
+    for sign in (1, -1):
+        a = math.atan2(uy, ux) + sign * 0.42
+        sx, sy = cx + r0 * math.cos(a), cy + r0 * math.sin(a)
+        bow = sign * length * 0.26
+        c1 = (sx + dx * 0.3 - uy * bow, sy + dy * 0.3 + ux * bow)
+        c2 = (cx + dx * 0.75 - uy * bow * 0.7, cy + dy * 0.75 + ux * bow * 0.7)
+        paths.append(f"M{sx:.1f},{sy:.1f} C{c1[0]:.1f},{c1[1]:.1f} {c2[0]:.1f},{c2[1]:.1f} {x:.1f},{y:.1f}")
+    return paths
+
+
+def network_svg(steps: list[Step], running: bool) -> str:
+    """The run as living cells: the supervisor nucleus in the middle, one cell per specialist on an
+    orbit, joined by twin tubes whose particles flow out (working) and back (answer delivered).
+    Pure: no Streamlit calls. All motion lives in theme.css, keyed on the classes set here."""
+    status = team_status(steps, running)
+    final = any(s.kind == "final" for s in steps)
+    sup = status["supervisor"]
+    nucleus_state = ("final" if final else "failed" if sup == "failed" else "thinking" if sup == "active"
+                     else "waiting" if running else "idle")
+    cx, cy = NUCLEUS
+    rx, ry = 360, 172
+    nr, ar = 64, 36  # nucleus and agent cell radii
+    team = TEAM[1:]
+    last_answer = {s.agent: i for i, s in enumerate(steps) if s.kind == "agent_answer"}
+
+    defs = [CELL_TEXTURE, sphere_defs("sph-nucleus", "#BCD3FF")]
+    tubes, nodes, aria = [], [], [f"Supervisor {NUCLEUS_WORDS[nucleus_state]}"]
+    sup_caption = supervisor_caption(steps, status, running)
+    # Narrow screens: the canvas keeps the motion, and this list (hidden on wide ones) carries the words.
+    legend = [f'<div class="leg-row {sup}" style="--c:#C9D6F2"><span class="leg-dot"></span>'
+              f'<b>Supervisor</b><span>{svg_text(sup_caption, 60)}</span></div>']
+    for i, a in enumerate(team):
+        ang = -math.pi / 2 + 2 * math.pi * i / max(len(team), 1)
+        x, y = cx + rx * math.cos(ang), cy + ry * math.sin(ang)
+        st_a = status[a]
+        # Results flowing back: the agent's answer is among the last few steps.
+        back = " returning" if st_a == "done" and last_answer.get(a, -9) >= len(steps) - 3 else ""
+        c = glow_colour(a)
+        gid = f"sph-{slug(a)}"
+        defs.append(sphere_defs(gid, c))
+        lobes = "".join(f'<path class="tube-wall" d="{d}"/><path class="tube-core" d="{d}"/>'
+                        f'<path class="tube-flow" d="{d}"/>' for d in tube_paths(cx, cy, x, y, nr * 0.8))
+        tubes.append(f'<g class="axon {st_a}{back}" color="{c}">{lobes}</g>')
+
+        searches = sum(1 for s in steps if s.agent == a and s.kind == "tool_call" and s.data.get("tool") == "web_search")
+        pages = sum(1 for s in steps if s.agent == a and s.kind == "tool_call" and s.data.get("tool") == "read_page")
+        if abs(math.cos(ang)) < 0.35:  # top or bottom of the orbit: labels beside the cell
+            tx, ty, anchor = x + ar + 20, y - 18, "start"
+        else:  # labels under the cell
+            tx, ty, anchor = x, y + ar + 30, "middle"
+        nodes.append(
+            f'<g class="node {st_a}" color="{c}">{sphere("node", gid, x, y, ar)}'
+            f'<text class="node-initials" x="{x:.1f}" y="{y:.1f}">{esc(initials(a))}</text>'
+            f'<text class="node-name" x="{tx:.1f}" y="{ty:.1f}" text-anchor="{anchor}">{esc(human(a))}</text>'
+            f'<text class="node-caption" x="{tx:.1f}" y="{ty + 25:.1f}" text-anchor="{anchor}">'
+            f'{svg_text(agent_caption(steps, a), 38)}</text>'
+            f'<text class="node-count" x="{tx:.1f}" y="{ty + 49:.1f}" text-anchor="{anchor}">'
+            f'🔍 {searches} · 📄 {pages}</text></g>'
+        )
+        aria.append(f"{human(a)} {NET_WORDS[st_a]}")
+        legend.append(f'<div class="leg-row {st_a}" style="--c:{c}"><span class="leg-dot"></span>'
+                      f'<b>{esc(human(a))}</b><span>{svg_text(agent_caption(steps, a), 60)}</span></div>')
+
+    nucleus = (
+        f'<g class="nucleus {nucleus_state}" color="#BCD3FF">'
+        f'<circle class="nucleus-halo" cx="{cx}" cy="{cy}" r="{nr * 2}" fill="url(#cell-halo)"/>'
+        f'<circle class="membrane" cx="{cx}" cy="{cy}" r="{nr + 26}"/>'
+        f'<circle class="membrane membrane-inner" cx="{cx}" cy="{cy}" r="{nr + 16}"/>'
+        f'{sphere("nucleus", "sph-nucleus", cx, cy, nr)}'
+        f'<text class="nucleus-name" x="{cx}" y="{cy + nr + 56}">Supervisor</text>'
+        f'<text class="nucleus-caption" x="{cx}" y="{cy + nr + 81}">{svg_text(sup_caption, 42)}</text></g>'
+    )
+    defs_html = (
+        '<defs>'
+        '<radialGradient id="cell-bg" cx="50%" cy="46%" r="70%"><stop offset="0" stop-color="#26315C"/>'
+        '<stop offset="1" stop-color="#141A30"/></radialGradient>'
+        '<radialGradient id="cell-halo"><stop offset="0.4" stop-color="#9FC3FF" stop-opacity="0.5"/>'
+        '<stop offset="1" stop-color="#9FC3FF" stop-opacity="0"/></radialGradient>'
+        '<filter id="cell-blur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="8"/></filter>'
+        '<filter id="cell-soft" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="5"/></filter>'
+        f'{"".join(defs)}</defs>'
+    )
+    return (
+        f'<div class="cell-stage"><svg class="cell{" running" if running else ""}" viewBox="0 0 {NET_W} {NET_H}" '
+        f'preserveAspectRatio="xMidYMid meet" role="img" aria-label="{esc("; ".join(aria))}">{defs_html}'
+        f'<rect width="{NET_W}" height="{NET_H}" fill="url(#cell-bg)"/>{BOKEH}'
+        f'{"".join(tubes)}{nucleus}{"".join(nodes)}</svg>'
+        f'<div class="cell-legend" aria-hidden="true">{"".join(legend)}</div></div>'
+    )
+
+
 def error_advice(step: Step) -> str:
     if step.agent != "supervisor":
         return "The supervisor carries on with the rest of the brief."
@@ -245,7 +451,8 @@ def render_step(i: int, step: Step, t: float) -> None:
                 st.markdown(expander[1])
 
 
-def render_answer(slot, request: str, steps: list[Step], running: bool, active: str | None = None) -> None:
+def render_answer(slot, request: str, steps: list[Step], running: bool, active: list[str] | None = None,
+                  where: str = "") -> None:
     final = next((s for s in reversed(steps) if s.kind == "final"), None)
     with slot.container():
         if final:
@@ -254,18 +461,30 @@ def render_answer(slot, request: str, steps: list[Step], running: bool, active: 
                 st.download_button(
                     "Download as Markdown", f"# Brief\n\n{request}\n\n---\n\n{final.detail}\n",
                     file_name="briefing-room-answer.md", mime="text/markdown", on_click="ignore",
-                    key=f"download_{len(steps)}_{running}",
+                    key=f"download{where}_{len(steps)}_{running}",
                 )
             st.markdown(final.detail or "_The team returned an empty answer._")
         elif running:
-            who = human(active) if active else "The team"
-            st.html(f'<div class="answer-wait">{esc(who)} is working on it. The answer appears here '
-                    'when the team finishes.</div>')
+            names = [human(a) for a in active or []]
+            if names:
+                who = " and ".join([", ".join(names[:-1]), names[-1]]) if len(names) > 1 else names[0]
+                line = f"{who} {'are' if len(names) > 1 else 'is'} working on it."
+            elif any(s.kind == "agent_answer" for s in steps):
+                line = "The supervisor is putting the answer together."
+            else:
+                line = "The supervisor is reading the brief."
+            st.html(f'<div class="answer-wait">{esc(line)} The answer appears here when the team finishes.</div>')
         else:
             err = next((s for s in reversed(steps) if s.kind == "error"), None)
             what = esc(err.title) if err else "The run ended without an answer."
             advice = esc(error_advice(err)) if err else "Brief the team again."
             st.html(f'<div class="answer-error"><strong>No answer this time.</strong> {what}<br>{advice}</div>')
+
+
+def views():
+    """Network | Timeline. st.tabs, not a segmented control: a widget rerun would stop a live run,
+    while a tab switch stays in the browser."""
+    return st.tabs(["Network", "Timeline"], key="view", default="Network")
 
 
 def safe_steps(app, request: str):
@@ -283,11 +502,16 @@ def safe_steps(app, request: str):
 
 
 def show_run(request: str, timed: list[tuple[Step, float]], strip, live_iter=None) -> None:
-    """Render a stored run, or stream a live one (live_iter) into the same layout."""
-    left, right = st.columns([2, 3], gap="large")
-    with left:
-        st.subheader("How the team worked", anchor=False)
-        status_line = st.empty()
+    """Render a stored run, or stream a live one (live_iter) into the same layout. Both views are
+    filled on every step, so switching tabs is client-side and never interrupts a live run."""
+    status_line = st.empty()
+    network, timeline = views()
+    net_slot = network.empty()
+    net_answer = network.container(key="answer_net").empty()
+    with timeline:
+        left, right = st.columns([2, 3], gap="large")
+        with left:
+            st.subheader("How the team worked", anchor=False)
     answer_slot = right.container(key="answer").empty()
 
     def refresh(running: bool, elapsed: float):
@@ -297,7 +521,9 @@ def show_run(request: str, timed: list[tuple[Step, float]], strip, live_iter=Non
         n = f"{len(steps)} step{'s' if len(steps) != 1 else ''}"
         line = f"Working for {clock(elapsed)}, {n} so far" if running else f"Finished in {clock(elapsed)}, {n}"
         status_line.html(f'<p class="run-status">{line}</p>')
-        active = next((a for a in TEAM[1:] if status[a] == "active"), None)
+        net_slot.markdown(network_svg(steps, running), unsafe_allow_html=True)
+        active = [a for a in TEAM[1:] if status[a] == "active"]  # parallel rounds: several at once
+        render_answer(net_answer, request, steps, running, active, where="_net")
         render_answer(answer_slot, request, steps, running, active)
 
     if live_iter is None:
@@ -483,6 +709,9 @@ elif st.session_state.get("result"):
     show_run(r["request"], r["timed"], strip)
 else:
     strip.html(strip_html(team_status([], running=False)))
+    network, timeline = views()
+    network.markdown(network_svg([], running=False), unsafe_allow_html=True)
+    timeline.html('<p class="quiet">Every step the team takes appears here once you brief them.</p>')
     reqs = examples(mock)
     if reqs:
         st.subheader("Try one of these", anchor=False)

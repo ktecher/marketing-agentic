@@ -111,8 +111,104 @@ h2, h3 { letter-spacing: -0.01em; }
 .roster-name { font-weight: 600; font-size: var(--fs-sm); }
 .roster-desc { font-size: var(--fs-xs); color: var(--muted); line-height: 1.4; }
 
+
+/* Network view: the agency as a cell under a microscope. Nucleus = supervisor, nodes =
+   specialists, axons carry the work out and the results back. Agent hues arrive as the SVG
+   `color` attribute, so everything below paints with currentColor. One motion language:
+   the nucleus breathes, signals travel; nothing else on the page moves. */
+.st-key-answer_net { background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; padding: 1.5rem 1.75rem 1.75rem; margin-top: 0.75rem; }
+.st-key-answer_net h1 { font-size: 1.75rem; }
+.st-key-answer_net h2 { font-size: 1.35rem; }
+.cell-stage {
+  background: var(--ink); border-radius: 16px; overflow: hidden; line-height: 0;
+  box-shadow: 0 1px 2px rgba(27, 35, 64, 0.08), 0 18px 40px -18px rgba(27, 35, 64, 0.45);
+}
+.cell { display: block; width: 100%; height: auto; max-height: 560px; }
+.cell-stage { container-type: inline-size; }
+.cell-legend { display: none; gap: 0.45rem; padding: 0 1rem 1rem; line-height: 1.35; font-family: var(--body); font-size: var(--fs-sm); color: #B9C1DA; }
+.leg-row { display: grid; grid-template-columns: 0.6rem auto 1fr; align-items: baseline; gap: 0.5rem; }
+.leg-row b { color: #F2F4FA; font-weight: 600; white-space: nowrap; }
+.leg-row span:last-child { overflow-wrap: anywhere; }
+.leg-dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; border: 2px solid var(--c); }
+.leg-row.active .leg-dot { background: var(--c); box-shadow: 0 0 8px var(--c); }
+.leg-row.active span:last-child { color: var(--c); }
+.leg-row.done .leg-dot { background: var(--c); }
+.leg-row.failed .leg-dot { border-color: #F06A5E; }
+@container (max-width: 620px) {
+  .cell .node-name, .cell .node-caption, .cell .node-count, .cell .nucleus-caption { display: none; }
+  .cell .nucleus-name { font-size: 34px; }
+  .cell .node-initials { font-size: 24px; }
+  .cell-legend { display: grid; }
+}
+.cell text { font-family: var(--body); }
+.bokeh circle { fill: #A9C6FF; }
+.dust circle { fill: #DCE6FF; }
+
+/* Tubes: two lobes per agent. A soft translucent wall, a lighter core, particles inside. */
+.tube-wall { fill: none; stroke: rgba(170, 195, 255, 0.07); stroke-width: 15; stroke-linecap: round; }
+.tube-core { fill: none; stroke: rgba(200, 220, 255, 0.16); stroke-width: 2; }
+.tube-flow { fill: none; stroke: rgba(220, 232, 255, 0.35); stroke-width: 4.5; stroke-linecap: round; stroke-dasharray: 0.1 13; }
+.axon.active .tube-wall { stroke: currentColor; stroke-opacity: 0.2; filter: drop-shadow(0 0 8px currentColor); }
+.axon.active .tube-core { stroke: currentColor; stroke-opacity: 0.55; }
+.axon.active .tube-flow { stroke: #fff; stroke-width: 5.5; filter: drop-shadow(0 0 3px currentColor); animation: flow-out 0.9s linear infinite; }
+.axon.done .tube-wall { stroke: currentColor; stroke-opacity: 0.1; }
+.axon.done .tube-core { stroke: currentColor; stroke-opacity: 0.3; }
+.axon.done .tube-flow { stroke: currentColor; stroke-opacity: 0.45; }
+.axon.returning .tube-flow { stroke: #fff; stroke-opacity: 1; stroke-width: 5.5; animation: flow-in 0.9s linear 4; }
+.axon.failed .tube-wall { stroke: #F06A5E; stroke-opacity: 0.12; }
+.axon.failed .tube-core, .axon.failed .tube-flow { stroke: #F06A5E; stroke-opacity: 0.6; }
+@keyframes flow-out { to { stroke-dashoffset: -26.2; } }
+@keyframes flow-in { to { stroke-dashoffset: 26.2; } }
+
+/* Cells: glassy spheres. Gradient body (per agent), bubbly texture, shine, lit rim. */
+.sphere-tex { opacity: 0.55; }
+.sphere-shine { fill: #fff; opacity: 0.55; filter: blur(2px); }
+.sphere-rim { fill: none; stroke: rgba(235, 242, 255, 0.55); stroke-width: 1.5; }
+.node-core, .nucleus-core { transition: opacity 0.4s; }
+.node-glow, .nucleus-glow { fill: currentColor; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.node-initials { fill: #fff; font-family: var(--display) !important; font-weight: 700; font-size: 18px; text-anchor: middle; dominant-baseline: central; paint-order: stroke; stroke: rgba(16, 22, 43, 0.45); stroke-width: 3px; }
+.node-name { fill: #F2F4FA; font-size: 21px; font-weight: 600; }
+.node-caption { fill: #B9C1DA; font-size: 18px; }
+.node-count { fill: #8F9AB8; font-size: 16px; font-variant-numeric: tabular-nums; }
+.node.idle .node-core { opacity: 0.45; }
+.node.idle .sphere-tex, .node.idle .sphere-shine { opacity: 0.25; }
+.node.active .node-glow { opacity: 0.6; animation: node-pulse 1.6s ease-in-out infinite; }
+.node.active .node-caption { fill: currentColor; }
+.node.done .node-glow { opacity: 0.18; }
+.node.failed .node-core { opacity: 0.4; }
+.node.failed .sphere-rim { stroke: #F06A5E; stroke-width: 3; stroke-opacity: 1; }
+.node.failed .node-caption { fill: #F59B92; }
+@keyframes node-pulse { 50% { opacity: 0.25; transform: scale(1.18); } }
+
+.nucleus-halo, .membrane { transform-box: fill-box; transform-origin: center; }
+.nucleus-halo { opacity: 0.3; }
+.nucleus-glow { opacity: 0.25; }
+.membrane { fill: none; stroke: rgba(200, 220, 255, 0.1); stroke-width: 12; }
+.membrane-inner { stroke: rgba(210, 228, 255, 0.3); stroke-width: 1.5; stroke-dasharray: 4 7; }
+.nucleus-name { fill: #F2F4FA; font-size: 22px; font-weight: 600; text-anchor: middle; }
+.nucleus-caption { fill: #C9D6F2; font-size: 18px; text-anchor: middle; }
+.nucleus.idle .nucleus-core { opacity: 0.55; }
+.nucleus.idle .nucleus-halo { opacity: 0.1; }
+.nucleus.idle .nucleus-glow { opacity: 0; }
+.nucleus.waiting .nucleus-halo { opacity: 0.28; }
+.nucleus.thinking .nucleus-halo { animation: breathe 2.4s ease-in-out infinite; }
+.nucleus.thinking .nucleus-glow { animation: breathe 2.4s ease-in-out infinite; }
+.nucleus.final .nucleus-halo { opacity: 0.7; animation: flare 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.nucleus.final .nucleus-glow { opacity: 0.55; }
+.nucleus.failed .membrane { stroke: rgba(240, 106, 94, 0.35); }
+.nucleus.failed .nucleus-core { opacity: 0.6; }
+.cell.running .membrane { animation: wobble 7s ease-in-out infinite; }
+.cell.running .membrane-inner { animation-duration: 9s; animation-direction: reverse; }
+@keyframes breathe { 0%, 100% { opacity: 0.35; transform: scale(0.92); } 50% { opacity: 0.95; transform: scale(1.1); } }
+@keyframes flare { 0% { opacity: 0.4; transform: scale(1); } 30% { opacity: 1; transform: scale(1.65); } 100% { opacity: 0.7; transform: scale(1); } }
+@keyframes wobble {
+  0%, 100% { transform: scale(1, 1) skew(0deg, 0deg); }
+  30% { transform: scale(1.025, 0.98) skew(1.2deg, 0deg); }
+  65% { transform: scale(0.98, 1.025) skew(0deg, -1.2deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .chip.active { animation: none; }
+  .chip.active, .cell * { animation: none !important; }
   * { transition: none !important; }
 }
 

@@ -187,3 +187,68 @@ def test_save_button_hidden_when_disabled(app_test, monkeypatch):
     at.button(key="open_settings").click().run()
     assert [b for b in at.button if b.key == "set_apply"]
     assert not [b for b in at.button if b.key == "set_save"]
+
+def _pure_helpers():
+    """The app's pure helpers (team_status, network_svg, ...) without running the page."""
+    src = open(APP).read()
+    ns = {"__file__": APP}
+    exec(compile(src[:src.index("st.set_page_config(")], APP, "exec"), ns)
+    ns["TEAM"] = ["supervisor", "competitor_research", "content_drafting", "trend_monitoring"]
+    exec(compile(src[src.index("# ── helpers"):src.index("# ── trace rendering")], APP, "exec"), ns)
+    return ns
+
+
+def _node_classes(svg: str) -> dict[str, str]:
+    import re
+    names = {"CR": "competitor_research", "CD": "content_drafting", "TM": "trend_monitoring"}
+    found = re.findall(r'<g class="node ([a-z ]+)"[^>]*>.*?<text class="node-initials"[^>]*>(\w+)</text>', svg)
+    return {names[i]: cls for cls, i in found}
+
+
+def test_network_shows_parallel_round_live():
+    ns = _pure_helpers()
+    route = lambda a, task: Step("route", "supervisor", "", data={"agent": a, "task": task, "round": 1, "parallel": 2})
+    steps = [route("competitor_research", "Research Kiraleaf"), route("trend_monitoring", "Watch mentions"),
+             Step("tool_call", "trend_monitoring", "", data={"tool": "web_search",
+                                                             "args": {"query": "<script>alert(1)</script> $5"}})]
+    svg = ns["network_svg"](steps, running=True)
+    nodes = _node_classes(svg)
+    assert len(nodes) == 3 and svg.count('<g class="node ') == 3  # one node per enabled specialist
+    assert nodes["competitor_research"] == nodes["trend_monitoring"] == "active"
+    assert nodes["content_drafting"] == "idle"
+    assert '<g class="nucleus waiting"' in svg and "thinking" not in svg.split('class="nucleus ')[1][:12]
+    assert "<script>" not in svg and "&lt;script&gt;" in svg and "$" not in svg
+    assert 'role="img"' in svg and "Competitor research working" in svg and "Delegating to 2 specialists in parallel" in svg
+    assert "\n" not in svg  # rendered through st.markdown: a newline could end the HTML block
+
+
+def test_network_after_answers_and_final():
+    ns = _pure_helpers()
+    route = lambda a: Step("route", "supervisor", "", data={"agent": a, "task": "t"})
+    steps = [route("competitor_research"), route("trend_monitoring"),
+             Step("agent_answer", "competitor_research", "", "report"),
+             Step("agent_answer", "trend_monitoring", "", "report"),
+             Step("final", "supervisor", "Final answer", FINAL)]
+    svg = ns["network_svg"](steps, running=False)
+    nodes = _node_classes(svg)
+    assert nodes["competitor_research"] == nodes["trend_monitoring"] == "done"
+    assert '<g class="nucleus final"' in svg and "Answer ready" in svg
+    assert 'class="axon done returning"' in svg  # the last answer is flowing back to the nucleus
+    idle = ns["network_svg"]([], running=False)
+    assert '<g class="nucleus idle"' in idle and "Waiting for a brief" in idle and 'class="cell"' in idle
+
+
+def test_view_switch_keeps_the_answer(app_test):
+    at = app_test.run()
+    assert [t.label for t in at.tabs] == ["Network", "Timeline"]
+    at.text_area(key="request").input("Research Kiraleaf and draft posts.")
+    at.button(key="brief").click().run()
+    assert not at.exception
+    network, timeline = at.tabs
+    for tab in (network, timeline):  # both views are filled, so switching never reruns the page
+        assert "Three posts for Aurelle Skin" in "\n".join(m.value for m in tab.markdown)
+    assert any('class="cell' in m.value for m in network.markdown)
+    at.run()  # a rerun (switching back and forth, a download) keeps both
+    assert not at.exception
+    assert all("Three posts for Aurelle Skin" in "\n".join(m.value for m in t.markdown) for t in at.tabs)
+    assert len(at.calls) == 1
