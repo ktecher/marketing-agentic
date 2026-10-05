@@ -1,0 +1,27 @@
+[theme]
+base = "light"
+primaryColor = "#1B2340"
+backgroundColor = "#F7F8FB"
+secondaryBackgroundColor = "#EEF0F5"
+textColor = "#1B2340"
+borderColor = "#E3E6EE"
+redColor = "#B42318"
+linkColor = "#0F7C80"
+font = "Instrument Sans:https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap, sans-serif"
+headingFont = "Bricolage Grotesque:https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&display=swap, sans-serif"
+headingFontSizes = ["2.75rem", "1.5rem", "1.25rem", "1.0625rem"]
+headingFontWeights = [700, 600, 600, 600]
+baseFontSize = 16
+baseRadius = "0.5rem"
+buttonRadius = "999px"
+showWidgetBorder = true
+
+[theme.sidebar]
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F7F8FB"
+
+[client]
+toolbarMode = "minimal"
+
+[browser]
+gatherUsageStats = false
